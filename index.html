@@ -1,0 +1,3019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SubnetMaster v2 — Learn IPv4/IPv6 Subnetting &amp; Supernetting</title>
+<style>
+/* === SubnetMaster v2 — Dark Theme === */
+
+:root {
+  --bg: #0f1117;
+  --surface: #1a1d24;
+  --surface2: #252a33;
+  --border: #30363d;
+  --accent: #6e93f5;
+  --accent2: #4ec9b0;
+  --accent3: #ce9178;
+  --danger: #f44747;
+  --gold: #ffd700;
+  --text: #d4d4d4;
+  --muted: #7a8194;
+  --font: 'Segoe UI', system-ui, sans-serif;
+  --mono: 'Cascadia Code', 'Fira Code', Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  line-height: 1.6;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* ─── Topbar ─── */
+#topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.2rem;
+  height: 56px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+#topbar .brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--accent);
+}
+
+#topbar .progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex: 1;
+  max-width: 400px;
+  margin: 0 1.2rem;
+}
+
+#topbar .progress-track {
+  flex: 1;
+  height: 8px;
+  background: var(--surface2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+#topbar .progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent),  var(--accent2));
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+#topbar .progress-pct {
+  font-size: 0.85rem;
+  color: var(--muted);
+  min-width: 2.5rem;
+  text-align: right;
+  font-family: var(--mono);
+}
+
+#sidebar-toggle {
+  display: none;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+/* ─── Sidebar ─── */
+#sidebar {
+  width: 280px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 1rem 0;
+  flex-shrink: 0;
+  transition: transform 0.25s ease;
+}
+
+.mod-group {
+  margin-bottom: 1rem;
+}
+
+.mod-title {
+  padding: 0.4rem 1rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.mod-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lesson-btn {
+  display: flex;
+  align-items: stretch;
+}
+
+.lesson-btn button {
+  width: 100%;
+  text-align: left;
+  padding: 0.55rem 1rem;
+  background: transparent;
+  border: none;
+  border-left: 3px solid transparent;
+  color: var(--text);
+  font-size: 0.92rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.lesson-btn button:hover:not(:disabled) {
+  background: var(--surface2);
+}
+
+.lesson-btn.active button {
+  background: var(--surface2);
+  border-left-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.lesson-btn.completed button {
+  border-left-color: var(--accent2);
+  color: var(--accent2);
+}
+
+.lesson-btn.locked button {
+  color: var(--muted);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.lesson-num-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  font-size: 0.72rem;
+  font-family: var(--mono);
+  flex-shrink: 0;
+}
+
+.lesson-btn.active .lesson-num-circle {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+
+.lesson-btn.completed .lesson-num-circle {
+  background: var(--accent2);
+  color: var(--bg);
+  border-color: var(--accent2);
+}
+
+/* ─── Main Layout ─── */
+#main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+#content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ─── Steps ─── */
+.step {
+  margin-bottom: 1.5rem;
+  animation: fadeIn 0.35s ease;
+}
+
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.6rem;
+  font-size: 0.95rem;
+}
+
+.step-num-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  font-size: 0.8rem;
+  font-family: var(--mono);
+  font-weight: 700;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.step.active .step-num-circle {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.step.done .step-num-circle {
+  border-color: var(--accent2);
+  color: var(--accent2);
+}
+
+.step-label {
+  font-weight: 600;
+}
+
+.step-meta {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-family: var(--mono);
+}
+
+.step-body {
+  padding-left: 2.2rem;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Cards ─── */
+.info-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.1rem 1.3rem;
+  line-height: 1.7;
+}
+
+.info-card h3 {
+  margin-top: 0;
+  color: var(--accent);
+  font-size: 1.05rem;
+}
+
+.info-card code {
+  background: var(--surface2);
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 0.9em;
+}
+
+.demo-card, .demo-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.1rem 1.3rem;
+}
+
+.demo-box label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.demo-box input, .demo-box select, .demo-box textarea {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem 0.7rem;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 0.92rem;
+  margin-bottom: 0.6rem;
+  outline: none;
+}
+
+.demo-box input:focus, .demo-box select:focus, .demo-box textarea:focus {
+  border-color: var(--accent);
+}
+
+.exercise-card, .exercise-box {
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  padding: 1.3rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.exercise-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--accent);
+}
+
+.question {
+  font-size: 1.05rem;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.question code {
+  background: var(--surface2);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-family: var(--mono);
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.field-wrap label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.ex-input {
+  width: 100%;
+  max-width: 320px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.55rem 0.75rem;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.ex-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(110, 147, 245, 0.15);
+}
+
+.ex-input.correct {
+  border-color: var(--accent2);
+  box-shadow: 0 0 0 2px rgba(78, 201, 176, 0.15);
+}
+
+.ex-input.wrong {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 2px rgba(244, 71, 71, 0.15);
+}
+
+.ex-actions {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  margin-bottom: 0.6rem;
+}
+
+/* ─── Buttons ─── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.05s;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--border);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #5a82e0;
+  border-color: #5a82e0;
+}
+
+.btn-success {
+  background: var(--accent2);
+  border-color: var(--accent2);
+  color: #0f1117;
+  font-weight: 600;
+}
+
+.btn-success:hover:not(:disabled) {
+  background: #3db89a;
+  border-color: #3db89a;
+}
+
+.btn-hint {
+  background: transparent;
+  border-color: var(--accent3);
+  color: var(--accent3);
+}
+
+.btn-hint:hover:not(:disabled) {
+  background: rgba(206, 145, 120, 0.1);
+}
+
+/* ─── Feedback ─── */
+.feedback {
+  padding: 0.7rem 1rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  display: none;
+  animation: fadeIn 0.25s ease;
+}
+
+.feedback.pass {
+  background: rgba(78, 201, 176, 0.08);
+  border: 1px solid var(--accent2);
+  color: var(--accent2);
+}
+
+.feedback.fail {
+  background: rgba(244, 71, 71, 0.08);
+  border: 1px solid var(--danger);
+  color: var(--danger);
+}
+
+.hint-text {
+  margin-top: 0.5rem;
+  color: var(--accent3);
+  font-size: 0.9rem;
+}
+
+/* ─── Result Box ─── */
+.result-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.9rem 1rem;
+  margin-top: 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.result-box.error {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.result-box table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.result-box td, .result-box th {
+  padding: 0.35rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 0.88rem;
+}
+
+/* ─── Diagrams ─── */
+.diagram {
+  display: flex;
+  gap: 0.2rem;
+  margin: 0.8rem 0;
+  padding: 0.8rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.diag-block {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  border-radius: 4px;
+  min-width: 2.2rem;
+}
+
+.diag-net {
+  background: rgba(110, 147, 245, 0.12);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+}
+
+.diag-host {
+  background: rgba(78, 201, 176, 0.12);
+  border: 1px solid var(--accent2);
+  color: var(--accent2);
+}
+
+.diag-divider {
+  width: 2px;
+  background: var(--border);
+  border-radius: 1px;
+  margin: 0 0.2rem;
+}
+
+/* ─── Next Area ─── */
+#next-area {
+  display: none;
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  text-align: center;
+}
+
+#next-area p {
+  margin: 0 0 0.6rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+#next-title {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ─── Celebration ─── */
+#celebration {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9998;
+  overflow: hidden;
+}
+
+.confetti {
+  position: fixed;
+  z-index: 9999;
+  animation: fall linear forwards;
+  border-radius: 2px;
+}
+
+@keyframes fall {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 5px; border: 2px solid var(--bg); }
+::-webkit-scrollbar-thumb:hover { background: var(--border); }
+
+/* ─── Mobile ─── */
+@media (max-width: 768px) {
+  #main {
+    flex-direction: column;
+  }
+
+  #sidebar {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    height: calc(100vh - 56px);
+    width: 260px;
+    transform: translateX(-100%);
+    z-index: 90;
+    border-right: 1px solid var(--border);
+  }
+
+  body.sidebar-open #sidebar {
+    transform: translateX(0);
+  }
+
+  #content {
+    padding: 1rem;
+    max-width: 100%;
+  }
+
+  #sidebar-toggle {
+    display: inline-flex;
+  }
+
+  .step-body {
+    padding-left: 0;
+  }
+}
+
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="topbar">
+    <div class="brand">📡 SubnetMaster v2</div>
+    <div class="progress-wrap">
+      <div class="progress-track"><div id="progress-fill" class="progress-fill"></div></div>
+      <span id="progress-pct" class="progress-pct">0%</span>
+    </div>
+    <button id="sidebar-toggle" class="btn btn-ghost" onclick="toggleSidebar()">☰</button>
+  </div>
+  <div class="main">
+    <aside id="sidebar"></aside>
+    <main id="content">
+      <div id="content-inner"></div>
+      <div id="exercise-area"></div>
+      <div id="next-area" style="display:none">
+        <div class="next-card">
+          <div id="next-title"></div>
+          <button id="next-btn" class="btn btn-primary" onclick="nextLesson()">Continue →</button>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div id="celebration" style="display:none">
+    <div class="celebrate-wrap">
+      <h1>🎉 All Lessons Complete!</h1>
+      <p>You've mastered IPv4/IPv6 subnetting, supernetting, and VLSM.</p>
+      <button class="btn btn-primary" onclick="resetProgress()">Start Over</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* === SECTION 1: CORE ENGINE === */
+/* Pure networking math functions. NO DOM ACCESS. NO console.log. */
+
+/* ---------- Internal Helpers ---------- */
+function ipToNum(ip) {
+    const octets = ip.split('.').map(Number);
+    return ((octets[0] << 24) | (octets[1] << 16) | (octets[2] << 8) | octets[3]) >>> 0;
+}
+
+function numToIp(num) {
+    return [
+        (num >>> 24) & 0xFF,
+        (num >>> 16) & 0xFF,
+        (num >>> 8) & 0xFF,
+        num & 0xFF
+    ].join('.');
+}
+
+/* ---------- IP / Binary conversions ---------- */
+function ipToBin(ip) {
+    return ip.split('.').map(Number).map(n => n.toString(2).padStart(8, '0'));
+}
+
+function binToIp(binStr) {
+    const cleaned = String(binStr).replace(/[\s\.]/g, '');
+    if (cleaned.length !== 32) return null;
+    const octets = [];
+    for (let i = 0; i < 32; i += 8) {
+        octets.push(parseInt(cleaned.substring(i, i + 8), 2));
+    }
+    return octets.join('.');
+}
+
+/* ---------- Prefix / Mask conversions ---------- */
+function prefixToMask(prefix) {
+    const p = parseInt(prefix);
+    if (isNaN(p) || p < 0 || p > 32) return null;
+    const mask = [];
+    for (let i = 0; i < 4; i++) {
+        const bits = Math.min(8, Math.max(0, p - i * 8));
+        mask.push((0xFF << (8 - bits)) & 0xFF);
+    }
+    return mask.join('.');
+}
+
+function maskToPrefix(mask) {
+    if (!isValidMask(mask)) return -1;
+    const octets = mask.split('.').map(Number);
+    let prefix = 0;
+    for (const o of octets) {
+        let bits = 0;
+        let v = o;
+        while (v & 0x80) {
+            bits++;
+            v = (v << 1) & 0xFF;
+        }
+        prefix += bits;
+        if (bits < 8) break;
+    }
+    return prefix;
+}
+
+function prefixToCidrTable() {
+    const table = {};
+    for (let p = 8; p <= 30; p++) {
+        const total = Math.pow(2, 32 - p);
+        table['/' + p] = {
+            mask: prefixToMask(p),
+            hosts: total - 2,
+            total: total
+        };
+    }
+    return table;
+}
+
+/* ---------- Network / Broadcast / Range ---------- */
+function calcNetwork(ip, mask) {
+    const ipOctets = ip.split('.').map(Number);
+    const maskOctets = mask.split('.').map(Number);
+    return ipOctets.map((o, i) => o & maskOctets[i]).join('.');
+}
+
+function calcBroadcast(ip, mask) {
+    const ipOctets = ip.split('.').map(Number);
+    const maskOctets = mask.split('.').map(Number);
+    return ipOctets.map((o, i) => o | (255 - maskOctets[i])).join('.');
+}
+
+function calcRange(ip, mask) {
+    const network = calcNetwork(ip, mask);
+    const broadcast = calcBroadcast(ip, mask);
+    const prefix = maskToPrefix(mask);
+    const total = Math.pow(2, 32 - prefix);
+    const usable = total - 2;
+    const netNum = ipToNum(network);
+    const bcNum = ipToNum(broadcast);
+    let firstNum = (netNum + 1) >>> 0;
+    let lastNum = (bcNum - 1) >>> 0;
+    if (usable <= 0) {
+        firstNum = netNum;
+        lastNum = bcNum;
+    }
+    return {
+        network: network,
+        broadcast: broadcast,
+        first: numToIp(firstNum),
+        last: numToIp(lastNum),
+        total: total,
+        usable: usable
+    };
+}
+
+/* ---------- Validation ---------- */
+function isValidIp(ip) {
+    const parts = ip.split('.');
+    if (parts.length !== 4) return false;
+    const nums = parts.map(Number);
+    for (let i = 0; i < 4; i++) {
+        if (!/^\d+$/.test(parts[i])) return false;
+        if (nums[i] < 0 || nums[i] > 255) return false;
+    }
+    if (nums[0] === 0 && nums[1] === 0 && nums[2] === 0 && nums[3] === 0) return false;
+    if (nums[0] === 255 && nums[1] === 255 && nums[2] === 255 && nums[3] === 255) return false;
+    return true;
+}
+
+function isValidMask(mask) {
+    const parts = mask.split('.');
+    if (parts.length !== 4) return false;
+    const nums = parts.map(Number);
+    for (const n of nums) {
+        if (isNaN(n) || n < 0 || n > 255) return false;
+    }
+    let foundZero = false;
+    for (const n of nums) {
+        const bin = n.toString(2).padStart(8, '0');
+        for (const bit of bin) {
+            if (bit === '0') foundZero = true;
+            if (foundZero && bit === '1') return false;
+        }
+    }
+    return true;
+}
+
+function isValidCidr(prefix) {
+    const p = parseInt(prefix);
+    return !isNaN(p) && p >= 0 && p <= 32;
+}
+
+/* ---------- Subnetting ---------- */
+function calcSubnetCount(originalPrefix, newPrefix) {
+    return Math.pow(2, newPrefix - originalPrefix);
+}
+
+function calcHostsPerSubnet(prefix) {
+    return Math.pow(2, 32 - prefix) - 2;
+}
+
+function calcBlockSize(prefix) {
+    return Math.pow(2, 32 - prefix);
+}
+
+/* ---------- Supernetting ---------- */
+function calcSupernet(networks) {
+    if (!networks || networks.length === 0) return null;
+    const nums = networks.map(cidr => {
+        const [ipStr, preStr] = cidr.split('/');
+        const octets = ipStr.split('.').map(Number);
+        const ipNum = ((octets[0] << 24) | (octets[1] << 16) | (octets[2] << 8) | octets[3]) >>> 0;
+        return { ipNum, prefix: parseInt(preStr) || 0 };
+    });
+    let xor = 0;
+    for (let i = 1; i < nums.length; i++) {
+        xor |= (nums[0].ipNum ^ nums[i].ipNum);
+    }
+    let prefix = 32;
+    if (xor !== 0) {
+        let d = xor;
+        let msbPos = -1;
+        while (d) { d >>= 1; msbPos++; }
+        prefix = 31 - msbPos;
+    }
+    const minProvidedPrefix = Math.min(...nums.map(n => n.prefix));
+    prefix = Math.min(prefix, minProvidedPrefix);
+    const mask = prefix === 0 ? 0 : (0xFFFFFFFF << (32 - prefix));
+    const netNum = (nums[0].ipNum & mask) >>> 0;
+    const ip = [
+        (netNum >>> 24) & 0xFF,
+        (netNum >>> 16) & 0xFF,
+        (netNum >>> 8) & 0xFF,
+        netNum & 0xFF
+    ].join('.');
+    return ip + '/' + prefix;
+}
+
+/* ---------- IPv6 ---------- */
+function expandIPv6(ip) {
+    if (!isValidIPv6(ip)) return null;
+    const parts = ip.split('::');
+    const left = parts[0] ? parts[0].split(':') : [];
+    const right = parts[1] !== undefined ? parts[1].split(':') : [];
+    const missing = 8 - left.length - right.length;
+    const zeros = Array(missing).fill('0000');
+    const groups = left.concat(zeros, right);
+    return groups.map(g => g.padStart(4, '0')).join(':');
+}
+
+function compressIPv6(ip) {
+    const expanded = expandIPv6(ip);
+    if (!expanded) return null;
+    let groups = expanded.split(':').map(g => parseInt(g, 16).toString(16));
+    let bestStart = -1, bestLen = 0;
+    let curStart = -1, curLen = 0;
+    for (let i = 0; i < groups.length; i++) {
+        if (groups[i] === '0') {
+            if (curStart === -1) curStart = i;
+            curLen++;
+            if (curLen > bestLen) {
+                bestLen = curLen;
+                bestStart = curStart;
+            }
+        } else {
+            curStart = -1;
+            curLen = 0;
+        }
+    }
+    if (bestLen > 1) {
+        const prefix = groups.slice(0, bestStart).join(':');
+        const suffix = groups.slice(bestStart + bestLen).join(':');
+        let res = '';
+        if (prefix) res += prefix + ':';
+        res += ':';
+        if (suffix) res += suffix;
+        return res;
+    }
+    return groups.join(':');
+}
+
+function isValidIPv6(ip) {
+    if (!ip || typeof ip !== 'string') return false;
+    if (ip.split('::').length > 2) return false;
+    const parts = ip.split('::');
+    let groups = [];
+    for (let i = 0; i < parts.length; i++) {
+        if (parts[i] === '') continue;
+        const g = parts[i].split(':');
+        for (const h of g) {
+            if (h === '') return false;
+            if (h.length > 4) return false;
+            if (!/^[0-9a-fA-F]+$/.test(h)) return false;
+        }
+        groups = groups.concat(g);
+    }
+    if (parts.length === 1) {
+        if (groups.length !== 8) return false;
+    } else {
+        if (groups.length >= 8) return false;
+    }
+    return true;
+}
+
+function ipv6Type(ip) {
+    const expanded = expandIPv6(ip);
+    if (!expanded) return 'Invalid';
+    if (expanded === '0000:0000:0000:0000:0000:0000:0000:0001') return 'Loopback';
+    const firstGroup = parseInt(expanded.substring(0, 4), 16);
+    if ((firstGroup & 0xFF00) === 0xFF00) return 'Multicast';
+    if ((firstGroup & 0xFFC0) === 0xFE80) return 'Link-Local';
+    if ((firstGroup & 0xE000) === 0x2000) return 'Global Unicast';
+    return 'Anycast';
+}
+
+function ipv6SubnetPrefixes() {
+    return {
+        '/48': { name: 'Site', subnets: '65,536 /64s', hosts: '2^8a addresses' },
+        '/56': { name: 'Small Site', subnets: '256 /64s', hosts: '2^72 addresses' },
+        '/64': { name: 'LAN', subnets: '1', hosts: '2^64 addresses' },
+        '/128': { name: 'Host', subnets: 'N/A', hosts: '1' }
+    };
+}
+
+function eui64(mac) {
+    if (!mac) return null;
+    const parts = mac.split(/[:-]/);
+    if (parts.length !== 6) return null;
+    const bytes = parts.map(p => parseInt(p, 16));
+    if (bytes.some(b => isNaN(b) || b < 0 || b > 255)) return null;
+    bytes[0] ^= 0x02;
+    const g1 = ((bytes[0] << 8) | bytes[1]).toString(16).padStart(4, '0');
+    const g2 = ((bytes[2] << 8) | 0xFF).toString(16).padStart(4, '0');
+    const g3 = ((0xFE << 8) | bytes[3]).toString(16).padStart(4, '0');
+    const g4 = ((bytes[4] << 8) | bytes[5]).toString(16).padStart(4, '0');
+    return (g1 + ':' + g2 + ':' + g3 + ':' + g4).toLowerCase();
+}
+
+/* ---------- Utilities ---------- */
+function rand(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function randIdx(arr) {
+    return rand(0, arr.length - 1);
+}
+
+
+/* === SECTION 4: DEMO HANDLERS === */
+/* Event handler functions for all interactive demos. Use DOM. Formatted for <div id="dN-result"> */
+
+function _el(id) {
+    return document.getElementById(id);
+}
+
+function _show(resultId, html) {
+    const el = _el(resultId);
+    if (el) el.innerHTML = '<div class="result-box">' + html + '</div>';
+}
+
+function _error(resultId, msg) {
+    const el = _el(resultId);
+    if (el) el.innerHTML = '<div class="result-box error">' + msg + '</div>';
+}
+
+/* d1 - Binary Converter */
+function d1Show() {
+    const ip = _el('d1-ip').value.trim();
+    if (!isValidIp(ip)) { _error('d1-result', 'Invalid IP address.'); return; }
+    const bins = ipToBin(ip);
+    let html = '<strong>Binary (octets):</strong><br>' + bins.join('.') + '<br>';
+    html += '<strong>Flat binary:</strong><br>' + bins.join('');
+    _show('d1-result', html);
+}
+
+/* d2 - IP + Mask Visualizer */
+function d2Show() {
+    const ip = _el('d2-ip').value.trim();
+    const mask = _el('d2-mask').value.trim();
+    if (!isValidIp(ip) || !isValidMask(mask)) { _error('d2-result', 'Invalid IP or Subnet Mask.'); return; }
+    const r = calcRange(ip, mask);
+    let html = '<strong>Network:</strong> ' + r.network + '<br>';
+    html += '<strong>Broadcast:</strong> ' + r.broadcast + '<br>';
+    html += '<strong>First Usable:</strong> ' + r.first + '<br>';
+    html += '<strong>Last Usable:</strong> ' + r.last + '<br>';
+    html += '<strong>Total Addresses:</strong> ' + r.total + '<br>';
+    html += '<strong>Usable Hosts:</strong> ' + r.usable;
+    _show('d2-result', html);
+}
+
+/* d3 - AND Operation */
+function d3Show() {
+    const ip = _el('d3-ip').value.trim();
+    const mask = _el('d3-mask').value.trim();
+    if (!isValidIp(ip) || !isValidMask(mask)) { _error('d3-result', 'Invalid IP or Mask.'); return; }
+    const ipBin = ipToBin(ip);
+    const maskBin = ipToBin(mask);
+    const net = calcNetwork(ip, mask);
+    const netBin = ipToBin(net);
+    let html = '<table><tr><td>IP</td><td>' + ipBin.join(' ') + '</td></tr>';
+    html += '<tr><td>Mask</td><td>' + maskBin.join(' ') + '</td></tr>';
+    html += '<tr style="border-top:2px solid #ccc"><td>AND</td><td>' + netBin.join(' ') + '</td></tr>';
+    html += '</table><br><strong>Network:</strong> ' + net;
+    _show('d3-result', html);
+}
+
+/* d4 - CIDR Slider */
+function d4Show() {
+    const slider = _el('d4-slider');
+    const valEl = document.getElementById('d4-val');
+    if (!slider) return;
+    const prefix = parseInt(slider.value);
+    if (valEl) valEl.textContent = '/' + prefix;
+    const mask = prefixToMask(prefix);
+    const hosts = calcHostsPerSubnet(prefix);
+    const block = calcBlockSize(prefix);
+    let html = '<strong>Prefix:</strong> /' + prefix + '<br>';
+    html += '<strong>Mask:</strong> ' + mask + '<br>';
+    html += '<strong>Usable Hosts:</strong> ' + hosts + '<br>';
+    html += '<strong>Block Size:</strong> ' + block;
+    _show('d4-result', html);
+}
+
+/* d5 - Class Detector */
+function d5Show() {
+    const ip = _el('d5-ip').value.trim();
+    if (!isValidIp(ip)) { _error('d5-result', 'Invalid IPv4 address.'); return; }
+    const firstOctet = parseInt(ip.split('.')[0]);
+    let cls = '', defaultMask = '', prefix = '', range = '';
+    if (firstOctet >= 1 && firstOctet <= 126) {
+        cls = 'A'; defaultMask = '255.0.0.0'; prefix = '/8'; range = '1 – 126';
+    } else if (firstOctet >= 128 && firstOctet <= 191) {
+        cls = 'B'; defaultMask = '255.255.0.0'; prefix = '/16'; range = '128 – 191';
+    } else if (firstOctet >= 192 && firstOctet <= 223) {
+        cls = 'C'; defaultMask = '255.255.255.0'; prefix = '/24'; range = '192 – 223';
+    } else if (firstOctet >= 224 && firstOctet <= 239) {
+        cls = 'D (Multicast)'; defaultMask = 'N/A'; prefix = 'N/A'; range = '224 – 239';
+    } else if (firstOctet >= 240) {
+        cls = 'E (Experimental)'; defaultMask = 'N/A'; prefix = 'N/A'; range = '240 – 255';
+    }
+    let html = '<strong>IP:</strong> ' + ip + '<br>';
+    html += '<strong>Class:</strong> ' + cls + '<br>';
+    html += '<strong>1st Octet Range:</strong> ' + range + '<br>';
+    html += '<strong>Default Mask:</strong> ' + defaultMask + '<br>';
+    html += '<strong>Default Prefix:</strong> ' + prefix;
+    _show('d5-result', html);
+}
+
+/* d6 - Borrow-Bit Simulator */
+function d6Show() {
+    const ip = _el('d6-ip').value.trim();
+    const mask = _el('d6-mask').value.trim();
+    const borrow = parseInt(_el('d6-borrow').value);
+    if (!isValidIp(ip) || !isValidMask(mask)) { _error('d6-result', 'Invalid IP or Mask.'); return; }
+    if (isNaN(borrow) || borrow < 1 || borrow > 16) { _error('d6-result', 'Borrow bits must be 1-16.'); return; }
+    const origPrefix = maskToPrefix(mask);
+    const newPrefix = origPrefix + borrow;
+    if (newPrefix > 30) { _error('d6-result', 'New prefix exceeds /30.'); return; }
+    const subnets = calcSubnetCount(origPrefix, newPrefix);
+    const hosts = calcHostsPerSubnet(newPrefix);
+    let html = '<strong>Original Prefix:</strong> /' + origPrefix + '<br>';
+    html += '<strong>Borrowed Bits:</strong> ' + borrow + '<br>';
+    html += '<strong>New Prefix:</strong> /' + newPrefix + '<br>';
+    html += '<strong>Subnets Created:</strong> ' + subnets + '<br>';
+    html += '<strong>Hosts per Subnet:</strong> ' + hosts;
+    _show('d6-result', html);
+}
+
+/* d7 - VLSM Allocator */
+function d7Show() {
+    const ip = _el('d7-ip').value.trim();
+    const mask = _el('d7-mask').value.trim();
+    const hostsStr = _el('d7-hosts').value.trim();
+    if (!isValidIp(ip) || !isValidMask(mask)) { _error('d7-result', 'Invalid IP or Mask.'); return; }
+    const reqs = hostsStr.split(/[,\s]+/).map(s => parseInt(s.trim())).filter(n => !isNaN(n) && n > 0);
+    if (reqs.length === 0) { _error('d7-result', 'Enter host requirements (e.g. 100, 50, 10).'); return; }
+    reqs.sort((a, b) => b - a);
+    const origPrefix = maskToPrefix(mask);
+    let current = ipToNum(calcNetwork(ip, mask));
+    let html = '<table style="width:100%;border-collapse:collapse"><thead><tr>';
+    html += '<th style="text-align:left">Needed</th><th style="text-align:left">Prefix</th>';
+    html += '<th style="text-align:left">Network</th><th style="text-align:left">Mask</th>';
+    html += '<th style="text-align:left">Usable Range</th></tr></thead><tbody>';
+    for (const h of reqs) {
+        let p = 32 - Math.ceil(Math.log2(h + 2));
+        if (p < origPrefix) {
+            html += '<tr><td colspan="5">ERROR: ' + h + ' hosts needs /' + p + ', pool is only /' + origPrefix + '</td></tr>';
+            continue;
+        }
+        if (p > 30) p = 30;
+        const block = calcBlockSize(p);
+        if ((current % block) !== 0) {
+            current = (Math.ceil(current / block) * block) >>> 0;
+        }
+        const netStr = numToIp(current);
+        const m = prefixToMask(p);
+        const r = calcRange(netStr, m);
+        html += '<tr><td>' + h + '</td><td>/' + p + '</td><td>' + netStr + '/' + p + '</td>';
+        html += '<td>' + m + '</td><td>' + r.first + ' - ' + r.last + '</td></tr>';
+        current = (current + block) >>> 0;
+    }
+    html += '</tbody></table>';
+    _show('d7-result', html);
+}
+
+/* d8 - Supernet Calculator */
+function d8Show() {
+    const raw = _el('d8-networks').value.trim();
+    if (!raw) { _error('d8-result', 'Enter at least one CIDR network.'); return; }
+    const networks = raw.split(/[,\n]+/).map(s => s.trim()).filter(s => s);
+    if (networks.length === 0) { _error('d8-result', 'Enter at least one CIDR network.'); return; }
+    for (const cidr of networks) {
+        const [ipPart, prePart] = cidr.split('/');
+        if (!ipPart || !prePart || !isValidIp(ipPart) || !isValidCidr(prePart)) {
+            _error('d8-result', 'Invalid CIDR: ' + cidr); return;
+        }
+    }
+    const result = calcSupernet(networks);
+    _show('d8-result', '<strong>Smallest Supernet:</strong> ' + result);
+}
+
+/* d9 - ISP Pool Allocator */
+function d9Show() {
+    const ip = _el('d9-ip').value.trim();
+    const mask = _el('d9-mask').value.trim();
+    const customers = parseInt(_el('d9-customers').value);
+    if (!isValidIp(ip) || !isValidMask(mask)) { _error('d9-result', 'Invalid IP or Mask.'); return; }
+    if (isNaN(customers) || customers < 1) { _error('d9-result', 'Invalid number of customers.'); return; }
+    const origPrefix = maskToPrefix(mask);
+    const borrow = Math.ceil(Math.log2(customers));
+    const newPrefix = origPrefix + borrow;
+    if (newPrefix > 30) { _error('d9-result', 'Pool too small for ' + customers + ' customers.'); return; }
+    const count = calcSubnetCount(origPrefix, newPrefix);
+    const block = calcBlockSize(newPrefix);
+    let netNum = ipToNum(calcNetwork(ip, mask));
+    let html = '<strong>Pool:</strong> ' + numToIp(netNum) + '/' + origPrefix + '<br>';
+    html += '<strong>Customers:</strong> ' + customers + ' <strong>Allocated:</strong> ' + count + ' /' + newPrefix + ' subnets<br>';
+    html += '<strong>Hosts per Customer:</strong> ' + calcHostsPerSubnet(newPrefix) + '<br><br>';
+    const limit = Math.min(count, 32);
+    for (let i = 0; i < limit; i++) {
+        html += numToIp(netNum) + '/' + newPrefix + '<br>';
+        netNum = (netNum + block) >>> 0;
+    }
+    if (count > 32) html += '... and ' + (count - 32) + ' more';
+    _show('d9-result', html);
+}
+
+/* d10 - IPv6 Expand / Compress */
+function d10Show() {
+    const ip = _el('d10-ip').value.trim();
+    const action = _el('d10-action').value;
+    if (!isValidIPv6(ip)) { _error('d10-result', 'Invalid IPv6 address.'); return; }
+    let result;
+    if (action === 'expand') {
+        result = expandIPv6(ip);
+    } else {
+        result = compressIPv6(ip);
+    }
+    _show('d10-result', '<strong>' + (action === 'expand' ? 'Expanded' : 'Compressed') + ':</strong> ' + result);
+}
+
+/* d11 - EUI-64 Generator */
+function d11Show() {
+    const mac = _el('d11-mac').value.trim();
+    const result = eui64(mac);
+    if (!result) { _error('d11-result', 'Invalid MAC address. Use aa:bb:cc:dd:ee:ff or aa-bb-cc-dd-ee-ff.'); return; }
+    _show('d11-result', '<strong>EUI-64 Interface ID:</strong> ' + result);
+}
+
+/* d12 - Wildcard Mask Calculator */
+function d12Show() {
+    const ip = _el('d12-ip').value.trim();
+    const mask = _el('d12-mask').value.trim();
+    if (!isValidIp(ip) || !isValidMask(mask)) { _error('d12-result', 'Invalid IP or Mask.'); return; }
+    const maskOctets = mask.split('.').map(Number);
+    const wild = maskOctets.map(o => 255 - o).join('.');
+    let html = '<strong>IP:</strong> ' + ip + '<br>';
+    html += '<strong>Mask:</strong> ' + mask + '<br>';
+    html += '<strong>Wildcard:</strong> ' + wild + '<br>';
+    html += '<strong>Mask Binary:</strong> ' + ipToBin(mask).join('') + '<br>';
+    html += '<strong>Wildcard Binary:</strong> ' + wild.split('.').map(n => parseInt(n).toString(2).padStart(8, '0')).join('');
+    _show('d12-result', html);
+}
+
+
+/* d13 - IPv6 Subnet Calculator */
+function d13Show() {
+    const prefix = _el('d13-prefix').value.trim();
+    const count = parseInt(_el('d13-count').value) || 8;
+    const parts = prefix.split('/');
+    if (parts.length !== 2) { _error('d13-result', 'Use CIDR notation, e.g. 2001:db8:acad::/48'); return; }
+    const origPrefix = parseInt(parts[1]);
+    if (origPrefix < 1 || origPrefix > 64) { _error('d13-result', 'Prefix must be 1-64'); return; }
+    const newPrefix = 64; // Standard LAN boundary
+    const subnetBits = newPrefix - origPrefix;
+    const maxSubnets = Math.pow(2, subnetBits);
+    const showCount = Math.min(count, maxSubnets, 32);
+    let html = '<strong>Prefix:</strong> ' + prefix + '<br>';
+    html += '<strong>Subnet bits:</strong> ' + subnetBits + ' → <strong>Max subnets:</strong> ' + maxSubnets.toLocaleString() + '<br>';
+    html += '<strong>Each subnet:</strong> /' + newPrefix + ' with ' + Math.pow(2, 64).toLocaleString() + ' interface IDs<br><br>';
+    html += '<table style="width:100%;font-size:0.82rem;border-collapse:collapse;"><thead><tr style="background:var(--surface2);">';
+    html += '<th style="padding:5px 10px;text-align:left;">#</th><th style="padding:5px 10px;text-align:left;">Subnet CIDR</th></tr></thead><tbody>';
+    for (let i = 0; i < showCount; i++) {
+        const hex = i.toString(16).padStart(4, '0');
+        html += '<tr><td style="padding:5px 10px;border-top:1px solid var(--border);">' + (i+1) + '</td>';
+        html += '<td style="padding:5px 10px;border-top:1px solid var(--border);font-family:var(--mono);">' + parts[0].replace(/::$/, '') + hex + '::/' + newPrefix + '</td></tr>';
+    }
+    if (maxSubnets > showCount) html += '<tr><td colspan="2" style="padding:5px 10px;color:var(--muted);">... and ' + (maxSubnets - showCount) + ' more</td></tr>';
+    html += '</tbody></table>';
+    _show('d13-result', html);
+}
+
+/* d14 - MAC to EUI-64 + IPv6 */
+function d14Show() {
+    const mac = _el('d14-mac').value.trim();
+    const prefix = _el('d14-prefix').value.trim();
+    const result = eui64(mac);
+    if (!result) { _error('d14-result', 'Invalid MAC. Use aa:bb:cc:dd:ee:ff or aa-bb-cc-dd-ee-ff.'); return; }
+    let html = '<strong>EUI-64 Interface ID:</strong> <code style="font-size:1.05rem;">' + result + '</code><br><br>';
+    html += '<div style="font-size:0.8rem;color:var(--muted);margin-bottom:4px;">Steps:</div>';
+    html += '<ol style="font-size:0.85rem;margin-left:18px;line-height:1.7;">';
+    html += '<li>Split MAC into two 24-bit halves</li>';
+    html += '<li>Insert <code>FF:FE</code> in the middle</li>';
+    html += '<li>Flip the 7th bit (U/L bit) of the first byte</li>';
+    html += '</ol>';
+    if (prefix && isValidIPv6(prefix)) {
+        const expandedPrefix = expandIPv6(prefix).replace(/:0000/g, ':0').replace(/:0{4}/g, ':0');
+        const cleanPrefix = expandedPrefix.replace(/(0{4}:)+0{4}$/, '');
+        html += '<br><strong>Full IPv6 (SLAAC):</strong> <code style="font-size:1.05rem;">' + result + '</code>';
+    }
+    _show('d14-result', html);
+}
+
+/* d15 - IPv6 Address Planning */
+function d15Show() {
+    const prefix = _el('d15-prefix').value.trim();
+    const need = parseInt(_el('d15-need').value);
+    if (isNaN(need) || need < 1) { _error('d15-result', 'Enter number of subnets needed.'); return; }
+    const parts = prefix.split('/');
+    if (parts.length !== 2) { _error('d15-result', 'Use CIDR notation, e.g. 2001:db8:acad::/48'); return; }
+    const origPrefix = parseInt(parts[1]);
+    if (origPrefix > 64) { _error('d15-result', 'Planning only works with prefixes <= /64'); return; }
+    const subnetBits = 64 - origPrefix;
+    const maxSubnets = Math.pow(2, subnetBits);
+    const enough = need <= maxSubnets;
+    let html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.88rem;margin-bottom:12px;">';
+    html += '<div><span style="color:var(--muted)">Organization prefix:</span> <code>' + prefix + '</code></div>';
+    html += '<div><span style="color:var(--muted)">Subnets needed:</span> <strong>' + need + '</strong></div>';
+    html += '<div><span style="color:var(--muted)">Available /64s:</span> <code>' + maxSubnets.toLocaleString() + '</code></div>';
+    html += '<div><span style="color:var(--muted)">Status:</span> <strong style="color:' + (enough ? 'var(--success)' : 'var(--danger)') + ';">' + (enough ? '✅ Enough' : '❌ Not enough') + '</strong></div>';
+    html += '</div>';
+    if (enough) {
+        html += '<span style="color:var(--muted);font-size:0.8rem;">First ' + Math.min(need, 8) + ' /64 subnets:</span><br>';
+        for (let i = 0; i < Math.min(need, 8); i++) {
+            const hex = i.toString(16).padStart(4, '0');
+            html += '<code style="display:block;margin:3px 0;">' + parts[0].replace(/::$/, '') + hex + '::/64</code>';
+        }
+        if (need > 8) html += '<span style="color:var(--muted);font-size:0.78rem;">... and ' + (need - 8) + ' more</span>';
+    }
+    _show('d15-result', html);
+}
+
+
+</script>
+<script>
+/***********************************
+ * SubnetMaster v2 — UI Framework
+ * Section 2: State, Sidebar, Loader,
+ * Exercise System, & Celebration
+ ***********************************/
+
+/* ───── State ───── */
+// TOTAL will be set by lesson data script
+
+let state = {
+  current: 1,
+  completed: new Set(),
+  wrongAttempts: {}
+};
+
+function load() {
+  try {
+    const raw = localStorage.getItem('subnet_v2_progress');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (typeof parsed.current === 'number') state.current = parsed.current;
+      if (Array.isArray(parsed.completed)) {
+        state.completed = new Set(parsed.completed);
+      }
+      if (parsed.wrongAttempts && typeof parsed.wrongAttempts === 'object') {
+        state.wrongAttempts = parsed.wrongAttempts;
+      }
+    }
+  } catch (e) {
+    console.warn('subnet v2: failed to load progress', e);
+  }
+}
+
+function save() {
+  try {
+    localStorage.setItem('subnet_v2_progress', JSON.stringify({
+      current: state.current,
+      completed: Array.from(state.completed),
+      wrongAttempts: state.wrongAttempts
+    }));
+  } catch (e) {
+    console.warn('subnet v2: failed to save progress', e);
+  }
+}
+
+/* ───── DOM refs ───── */
+const $ = (sel) => document.querySelector(sel);
+
+const els = {
+  sidebar:         document.getElementById('sidebar'),
+  contentInner:    document.getElementById('content-inner'),
+  exerciseArea:    document.getElementById('exercise-area'),
+  nextArea:        document.getElementById('next-area'),
+  nextBtn:         document.getElementById('next-btn'),
+  nextTitle:       document.getElementById('next-title'),
+  progressFill:    document.getElementById('progress-fill'),
+  progressPct:     document.getElementById('progress-pct'),
+  celebration:     document.getElementById('celebration'),
+  sidebarToggle:   document.getElementById('sidebar-toggle')
+};
+
+/* ───── Sidebar ───── */
+function renderSidebar() {
+  if (!els.sidebar || typeof MODULES === 'undefined') return;
+
+  let html = '';
+  let globalLessonNum = 0;
+
+  MODULES.forEach((mod, modIdx) => {
+    html += `<div class="mod-group" data-mod="${modIdx}">`;
+    html +=   `<div class="mod-title">${escapeHtml(mod.title)}</div>`;
+    html +=   `<ul class="mod-list">`;
+
+    mod.lessons.forEach((lesson, lessonIdx) => {
+      globalLessonNum++;
+      const isActive  = globalLessonNum === state.current;
+      const isDone    = state.completed.has(globalLessonNum);
+      const isLocked  = globalLessonNum > 1 && !state.completed.has(globalLessonNum - 1);
+
+      let icon = '';
+      if (isDone)   icon = '✅';
+      else if (isLocked) icon = '🔒';
+      else               icon = `<span class="lesson-num-circle">${globalLessonNum}</span>`;
+
+      const cls = ['lesson-btn'];
+      if (isActive) cls.push('active');
+      if (isDone)   cls.push('completed');
+      if (isLocked) cls.push('locked');
+
+      html += '<li class="' + cls.join(' ') + '">' +
+                '<button onclick="loadLesson(' + globalLessonNum + ')" ' + (isLocked ? 'disabled' : '') + '>' +
+                  icon + ' ' + escapeHtml(lesson.title) +
+                '</button></li>';
+    });
+
+    html +=   `</ul>`;
+    html += `</div>`;
+  });
+
+  els.sidebar.innerHTML = html;
+}
+
+/* ───── Lesson Loader ───── */
+function loadLesson(id) {
+  if (id < 1 || id > TOTAL) return;
+  state.current = id;
+  save();
+
+  // clear previous content & exercise
+  els.contentInner.innerHTML = '';
+  els.exerciseArea.innerHTML = '';
+  els.exerciseArea.style.display = 'none';
+  els.nextArea.style.display = 'none';
+  window._exerciseData = null;
+
+  // find lesson data
+  let targetLesson = null;
+  let globalNum = 0;
+  outer: for (const mod of MODULES) {
+    for (const l of mod.lessons) {
+      globalNum++;
+      if (globalNum === id) { targetLesson = l; break outer; }
+    }
+  }
+  if (!targetLesson) return;
+
+  // render steps
+  const steps = targetLesson.steps || [];
+  steps.forEach((step, idx) => {
+    els.contentInner.insertAdjacentHTML('beforeend', renderStep(step, idx, steps.length));
+  });
+
+  // wire demo events AFTER DOM injection
+  steps.forEach((step, idx) => {
+    if (step.type === 'demo' && typeof step.init === 'function') {
+      step.init();
+    }
+  });
+
+  // init exercise if the last step is one
+  if (steps.length > 0 && steps[steps.length - 1].type === 'exercise') {
+    setTimeout(initExercise, 50);
+  }
+
+  updateProgress();
+  renderSidebar();
+  scrollToTop();
+}
+
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (els.contentInner) els.contentInner.scrollTop = 0;
+}
+
+/* ───── Step Renderer ───── */
+function renderStep(step, index, totalSteps) {
+  const stepNum = index + 1;
+  let cardBody = '';
+
+  switch (step.type) {
+    case 'explain':
+      cardBody = `<div class="info-card">${step.html || ''}</div>`;
+      break;
+    case 'demo':
+      cardBody = `<div class="demo-card">${step.html || ''}</div>`;
+      break;
+    case 'exercise':
+      cardBody = `<div class="exercise-card">${step.html || ''}</div>`;
+      break;
+    default:
+      cardBody = `<div class="info-card">${step.html || ''}</div>`;
+  }
+
+  return `<div class="step" data-step="${index}" data-type="${step.type}">` +
+           `<div class="step-header">` +
+             `<span class="step-num-circle">${stepNum}</span>` + ' ' +
+             `<span class="step-label">${escapeHtml(step.label || step.type)}</span>` +
+             `<span class="step-meta">${stepNum}/${totalSteps}</span>` +
+           `</div>` +
+           `<div class="step-body">${cardBody}</div>` +
+         `</div>`;
+}
+
+/* ───── Progress ───── */
+function updateProgress() {
+  const done = state.completed.size;
+  const pct  = Math.round((done / TOTAL) * 100);
+  if (els.progressFill) els.progressFill.style.width = pct + '%';
+  if (els.progressPct)  els.progressPct.textContent = pct + '%';
+}
+
+/* ───── Exercise System ───── */
+function initExercise() {
+  // find exercise step
+  const lastStepCard = els.contentInner.querySelector('.step[data-type="exercise"]');
+  if (!lastStepCard) return;
+
+  // retrieve lesson object to call generate()
+  let targetLesson = null;
+  let globalNum = 0;
+  outer: for (const mod of MODULES) {
+    for (const l of mod.lessons) {
+      globalNum++;
+      if (globalNum === state.current) { targetLesson = l; break outer; }
+    }
+  }
+  if (!targetLesson) return;
+
+  const steps = targetLesson.steps || [];
+  const exerciseStep = steps[steps.length - 1];
+  if (!exerciseStep || exerciseStep.type !== 'exercise' || typeof exerciseStep.generate !== 'function') return;
+
+  const data = exerciseStep.generate();
+  window._exerciseData = data;
+
+  // render exercise UI into #exercise-area
+  let html = `<div class="exercise-box">`;
+  html +=    `<div class="question">${data.question || ''}</div>`;
+  html +=    `<div class="fields">`;
+
+  data.fields.forEach((f) => {
+    html +=  `<div class="field-wrap">` +
+               `<label for="ex-${f.id}">${escapeHtml(f.label)}</label>` +
+               `<input type="text" id="ex-${f.id}" class="ex-input" autocomplete="off" spellcheck="false">` +
+             `</div>`;
+  });
+
+  html +=    `</div>`;
+  html +=    `<div class="ex-actions">` +
+               `<button id="check-btn" class="btn btn-primary">Check</button>` +
+               `<button id="hint-btn" class="btn btn-hint" style="display:none">Hint</button>` +
+             `</div>`;
+  html +=    `<div id="feedback" class="feedback" style="display:none"></div>`;
+  html +=  `</div>`;
+
+  els.exerciseArea.innerHTML = html;
+  els.exerciseArea.style.display = 'block';
+
+  // attach listeners
+  const checkBtn = document.getElementById('check-btn');
+  const hintBtn  = document.getElementById('hint-btn');
+  if (checkBtn) checkBtn.addEventListener('click', checkExercise);
+  if (hintBtn)  hintBtn.addEventListener('click', showHint);
+
+  // allow Enter key
+  const inputs = els.exerciseArea.querySelectorAll('input[type="text"]');
+  inputs.forEach((inp) => {
+    inp.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') checkExercise();
+    });
+  });
+}
+
+function checkExercise() {
+  if (!window._exerciseData) return;
+
+  const data = window._exerciseData;
+  const fields = data.fields;
+  const feedbackEl = document.getElementById('feedback');
+  const hintBtn    = document.getElementById('hint-btn');
+
+  let allCorrect = true;
+  const wrongIds = [];
+
+  fields.forEach((f) => {
+    const el = document.getElementById(`ex-${f.id}`);
+    if (!el) return;
+    const val = el.value.trim();
+    const ok = typeof f.check === 'function' ? f.check(val) : false;
+    el.classList.remove('correct', 'wrong');
+    if (ok) {
+      el.classList.add('correct');
+    } else {
+      el.classList.add('wrong');
+      allCorrect = false;
+      wrongIds.push(f.id);
+    }
+  });
+
+  if (allCorrect) {
+    // passed
+    if (feedbackEl) {
+      feedbackEl.className = 'feedback pass';
+      feedbackEl.style.display = 'block';
+      feedbackEl.textContent = data.successMsg || 'Correct! Great job.';
+    }
+
+    // mark complete
+    if (!state.completed.has(state.current)) {
+      state.completed.add(state.current);
+      save();
+      updateProgress();
+      renderSidebar();
+    }
+
+    celebrate();
+    showNextButton();
+    if (hintBtn) hintBtn.style.display = 'none';
+  } else {
+    // failed
+    if (feedbackEl) {
+      feedbackEl.className = 'feedback fail';
+      feedbackEl.style.display = 'block';
+      feedbackEl.textContent = data.failMsg || 'Not quite — try again.';
+    }
+
+    // track wrong attempts
+    const lessonId = state.current;
+    state.wrongAttempts[lessonId] = (state.wrongAttempts[lessonId] || 0) + 1;
+    save();
+
+    // show hint button after 3 tries
+    if (hintBtn && state.wrongAttempts[lessonId] >= 3) {
+      hintBtn.style.display = 'inline-block';
+    }
+  }
+}
+
+function showHint() {
+  if (!window._exerciseData) return;
+  const data = window._exerciseData;
+  const feedbackEl = document.getElementById('feedback');
+  if (data.hint && feedbackEl) {
+    feedbackEl.style.display = 'block';
+    feedbackEl.innerHTML += `<div class="hint-text">💡 Hint: ${escapeHtml(data.hint)}</div>`;
+  }
+}
+
+function showNextButton() {
+  if (!els.nextArea || !els.nextTitle) return;
+  let nextId = state.current + 1;
+  if (nextId > TOTAL) {
+    els.nextArea.style.display = 'none';
+    return;
+  }
+
+  let nextTitle = 'Finish';
+  let globalNum = 0;
+  outer: for (const mod of MODULES) {
+    for (const l2 of mod.lessons) {
+      globalNum++;
+      if (globalNum === nextId) { nextTitle = l2.title; break outer; }
+    }
+  }
+
+  els.nextTitle.textContent = nextTitle;
+  els.nextArea.style.display = 'block';
+  els.nextBtn.onclick = nextLesson;
+
+  // auto-scroll if needed
+  setTimeout(() => {
+    els.nextArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 100);
+}
+
+/* ───── Celebration ───── */
+function celebrate() {
+  if (!els.celebration) return;
+  const colors = ['#ff595e','#ffca3a','#8ac926','#1982c4','#6a4c93','#f72585','#4cc9f0'];
+  const count  = Math.floor(Math.random() * 31) + 50; // 50–80
+
+  for (let i = 0; i < count; i++) {
+    const d = document.createElement('div');
+    d.className = 'confetti';
+    d.style.left = Math.random() * 100 + 'vw';
+    d.style.top  = '-10px';
+    d.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    d.style.animationDuration = (Math.random() * 1.5 + 1.5) + 's';
+    d.style.width  = (Math.random() * 8 + 6) + 'px';
+    d.style.height = (Math.random() * 8 + 6) + 'px';
+    d.style.position = 'fixed';
+    d.style.zIndex = '9999';
+    d.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    els.celebration.appendChild(d);
+  }
+
+  setTimeout(() => {
+    els.celebration.innerHTML = '';
+  }, 3000);
+}
+
+/* ───── Next Lesson ───── */
+function nextLesson() {
+  // clear exercise and next area before loading next lesson
+  els.exerciseArea.innerHTML = '';
+  els.exerciseArea.style.display = 'none';
+  els.nextArea.style.display = 'none';
+  window._exerciseData = null;
+
+  const nextId = state.current + 1;
+  if (nextId <= TOTAL) {
+    loadLesson(nextId);
+  }
+}
+
+/* ───── Sidebar Toggle ───── */
+if (els.sidebarToggle) {
+  els.sidebarToggle.addEventListener('click', () => {
+    document.body.classList.toggle('sidebar-open');
+  });
+}
+
+/* ───── Utility ───── */
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// Boot code is in the lesson data script block (script 3)
+
+</script>
+<script>
+/***********************************
+ * SubnetMaster v2 — Lesson Data Part 1
+ * Modules 1 & 2 (Lessons 1–8)
+ ***********************************/
+
+const MODULES_P1 = [
+  {
+    title: "Module 1 — IPv4 Fundamentals",
+    lessons: [
+      /* ─── Lesson 1: What is an IP Address? ─── */
+      {
+        id: 1,
+        title: "What is an IP Address?",
+        subtitle: "Learn how a 32-bit number becomes 4 dotted decimals",
+        steps: [
+          {
+            type: "explain",
+            label: "Explain",
+            title: "The Basics",
+            html: `
+              <div class="info-card">
+                <h3>📍 What is an IPv4 Address?</h3>
+                An IPv4 address is a <strong>32-bit number</strong> used to identify devices on a network.
+                It's written as <strong>4 decimal numbers (0–255)</strong> separated by dots — called
+                <em>octets</em> because each represents 8 binary bits.
+                <br><br>
+                Example: <span class="highlight">192.168.1.100</span>
+                <ul>
+                  <li>Maximum per octet: <span class="highlight">255</span> (all 8 bits set to 1)</li>
+                  <li>Minimum per octet: <span class="highlight">0</span> (all 8 bits set to 0)</li>
+                  <li>Total address space: 2³² ≈ 4.3 billion addresses</li>
+                </ul>
+              </div>
+            `
+          },
+          {
+            type: "demo",
+            label: "Demo",
+            title: "See It in Binary",
+            html: `
+              <div class="demo-box">
+                <label>Enter any IPv4 address</label>
+                <input type="text" id="d1-ip" value="192.168.5.10" placeholder="e.g. 10.0.3.200">
+                <div class="btn-row">
+                  <button class="btn btn-primary" onclick="d1Show()">Show Binary</button>
+                </div>
+                <div id="d1-result"></div>
+              </div>
+            `
+          },
+          {
+            type: "exercise",
+            label: "Exercise",
+            title: "Your Turn",
+            generate() {
+              const a = rand(1, 223, b => b !== 127);
+              const b = rand(1, 254);
+              const c = rand(1, 254);
+              const d = rand(1, 254);
+              const ip = `${a}.${b}.${c}.${d}`;
+              const bins = ip.split('.').map(Number).map(n => n.toString(2).padStart(8, '0'));
+              return {
+                question: `Convert the IP address <code>${ip}</code> to binary. Enter the FULL 8-bit binary form of each octet, separated by dots (e.g. 11000000.10101000.00000001.00000101).`,
+                fields: [
+                  {
+                    id: 'ans1',
+                    label: 'Binary form (e.g. 11000000.10101000.00000001.00000101)',
+                    check: v => v.replace(/[\s\.]/g, '') === bins.join('')
+                  }
+                ],
+                answer: bins.join('.'),
+                hint: `Convert each decimal octet separately. ${a} = ${bins[0]}, ${b} = ${bins[1]}, ${c} = ${bins[2]}, ${d} = ${bins[3]}. Full answer: ${bins.join('.')}`
+              };
+            }
+          }
+        ]
+      },
+
+      /* ─── Lesson 2: Network vs Host Bits ─── */
+      {
+        id: 2,
+        title: "Network vs Host Bits",
+        subtitle: "How a subnet mask divides an IP into network and host portions",
+        steps: [
+          {
+            type: "explain",
+            label: "Explain",
+            title: "Two Parts of Every IP",
+            html: `
+              <div class="info-card">
+                <h3>🔪 The Subnet Mask — The Great Divider</h3>
+                Every IP address has two parts, defined by the <strong>subnet mask</strong>:
+                <ul>
+                  <li><span class="highlight">Network bits</span> — identify the network (like a street name)</li>
+                  <li><span class="highlight2">Host bits</span> — identify a specific device (like a house number)</li>
+                </ul>
+                <br>
+                <strong>Subnet mask rules:</strong>
+                <ul>
+                  <li><span class="highlight">255</span> in an octet = network bit (keep this part unchanged)</li>
+                  <li><span class="highlight2">0</span> in an octet = host bit (this is the addressable space)</li>
+                </ul>
+                <br>
+                <div class="diagram">
+                  <strong>IP: 192 . 168 . 1 . 100</strong><br>
+                  <strong>Mask: 255 . 255 . 255 . 0</strong><br>
+                  <div class="diagram-row" style="margin-top:8px;">
+                    <span class="diag-block diag-net">192</span>
+                    <span class="diag-block diag-net">168</span>
+                    <span class="diag-block diag-net">1</span>
+                    <span class="diag-sep">|</span>
+                    <span class="diag-block diag-host">100</span>
+                  </div>
+                  <div class="diagram-row">
+                    <span class="diag-block diag-net">Network</span>
+                    <span class="diag-block diag-net">Network</span>
+                    <span class="diag-block diag-net">Network</span>
+                    <span class="diag-sep"></span>
+                    <span class="diag-block diag-host">Host</span>
+                  </div>
+                </div>
+                <strong>192.168.1.0/24</strong> means the first 24 bits are the network — the last 8 bits are hosts.
+              </div>
+            `
+          },
+          {
+            type: "demo",
+            label: "Demo",
+            title: "Visualize Any IP + Mask",
+            html: `
+              <div class="demo-box">
+                <label>IP Address</label>
+                <input type="text" id="d2-ip" value="192.168.1.100" placeholder="192.168.1.100">
+                <label>Subnet Mask (dotted decimal)</label>
+                <input type="text" id="d2-mask" value="255.255.255.0" placeholder="255.255.255.0">
+                <div class="btn-row">
+                  <button class="btn btn-primary" onclick="d2Show()">Analyze</button>
+                </div>
+                <div id="d2-result"></div>
+              </div>
+            `
+          },
+          {
+            type: "exercise",
+            label: "Exercise",
+            title: "Count the Bits",
+            generate() {
+              const masks = [
+                { mask: '255.255.255.0', prefix: 24 },
+                { mask: '255.255.0.0', prefix: 16 },
+                { mask: '255.0.0.0', prefix: 8 },
+                { mask: '255.255.255.128', prefix: 25 },
+                { mask: '255.255.255.192', prefix: 26 }
+              ];
+              const m = masks[randIdx(masks)];
+              return {
+                question: `For a device with mask <code>${m.mask}</code>, how many network bits and how many host bits are there?`,
+                fields: [
+                  { id: 'ans_net', label: 'Network bits', check: v => parseInt(v) === m.prefix },
+                  { id: 'ans_host', label: 'Host bits', check: v => parseInt(v) === 32 - m.prefix }
+                ],
+                hint: `${m.mask} = /${m.prefix}. Total bits = 32. Network bits = ${m.prefix}, Host bits = ${32 - m.prefix}.`
+              };
+            }
+          }
+        ]
+      },
+
+      /* ─── Lesson 3: The AND Operation ─── */
+      {
+        id: 3,
+        title: "The AND Operation",
+        subtitle: "How routers find the network address using binary AND",
+        steps: [
+          {
+            type: "explain",
+            label: "Explain",
+            title: "IP AND Mask = Network Address",
+            html: `
+              <div class="info-card">
+                <h3>⚡ The AND Operation — How Finding a Network Works</h3>
+                To find the <strong>network address</strong>, every bit of the IP is ANDed with the mask:<br><br>
+                <ul>
+                  <li>1 AND 1 = <strong>1</strong></li>
+                  <li>1 AND 0 = <strong>0</strong></li>
+                  <li>0 AND 1 = <strong>0</strong></li>
+                  <li>0 AND 0 = <strong>0</strong></li>
+                </ul>
+                <br>
+                Since 255 = 11111111 in binary, ANDing with 255 keeps the original bit.<br>
+                Since 0 = 00000000 in binary, ANDing with 0 always gives 0.
+                <br><br>
+                <strong>Example:</strong> IP 192.168.1.100 with mask 255.255.255.0
+                <div class="diagram" style="font-family:var(--mono);font-size:0.8rem;">
+                  IP:     11000000.10101000.00000001.01100100<br>
+                  Mask:   11111111.11111111.11111111.00000000<br>
+                  AND:    ─────────────────────────────────<br>
+                  Net:    11000000.10101000.00000001.00000000 → 192.168.1.0
+                </div>
+                The <strong>broadcast address</strong> sets all host bits to 1: 192.168.1.255
+              </div>
+            `
+          },
+          {
+            type: "demo",
+            label: "Demo",
+            title: "See AND in Action",
+            html: `
+              <div class="demo-box">
+                <label>IP Address</label>
+                <input type="text" id="d3-ip" value="192.168.1.100">
+                <label>Subnet Mask</label>
+                <input type="text" id="d3-mask" value="255.255.255.0">
+                <div class="btn-row">
+                  <button class="btn btn-primary" onclick="d3Show()">Calculate AND</button>
+                </div>
+                <div id="d3-result"></div>
+              </div>
+            `
+          },
+          {
+            type: "exercise",
+            label: "Exercise",
+            title: "Find the Network Address",
+            generate() {
+              const prefix = [24, 24, 24, 16, 16][randIdx([0, 1, 2, 3, 4])];
+              const mask = prefixToMask(prefix);
+              const base = prefix === 24 ? [192, 168] : [10, 0];
+              const third = rand(0, 255);
+              const fourth = rand(1, 254);
+              const ip = `${base[0]}.${base[1]}.${third}.${fourth}`;
+              const network = calcNetwork(ip, mask);
+              return {
+                question: `Device has IP <code>${ip}</code> and mask <code>${mask}</code>. What is the network address?`,
+                fields: [
+                  {
+                    id: 'ans_net',
+                    label: 'Network address (CIDR notation)',
+                    check: v => v.replace(/\s/g, '') === network + '/' + prefix
+                  }
+                ],
+                hint: `The network address is ${network}/${prefix}.`
+              };
+            }
+          }
+        ]
+      },
+
+      /* ─── Lesson 4: CIDR & Subnet Masks ─── */
+      {
+        id: 4,
+        title: "CIDR & Subnet Masks",
+        subtitle: "/24 means 255.255.255.0 — the compact way to write masks",
+        steps: [
+          {
+            type: "explain",
+            label: "Explain",
+            title: "CIDR: Shorthand for Subnet Masks",
+            html: `
+              <div class="info-card">
+                <h3>📇 CIDR Notation — /24, /26, /16... What Does It Mean?</h3>
+                <strong>CIDR</strong> (Classless Inter-Domain Routing) writes the mask as a simple number:
+                the count of network bits.
+                <br><br>
+                <table style="width:100%;font-size:0.85rem;border-collapse:collapse;margin:10px 0;">
+                  <tr style="background:var(--surface2)"><th style="padding:6px 10px;text-align:left;color:var(--accent)">CIDR</th>
+                    <th style="padding:6px 10px;text-align:left;color:var(--accent2)">Mask</th>
+                    <th style="padding:6px 10px;text-align:left;color:var(--accent3)">Hosts</th></tr>
+                  <tr><td style="padding:6px 10px;border-top:1px solid var(--border)">/24</td><td style="padding:6px 10px;border-top:1px solid var(--border)">255.255.255.0</td><td style="padding:6px 10px;border-top:1px solid var(--border)">254</td></tr>
+                  <tr><td style="padding:6px 10px;border-top:1px solid var(--border)">/25</td><td style="padding:6px 10px;border-top:1px solid var(--border)">255.255.255.128</td><td style="padding:6px 10px;border-top:1px solid var(--border)">126</td></tr>
+                  <tr><td style="padding:6px 10px;border-top:1px solid var(--border)">/26</td><td style="padding:6px 10px;border-top:1px solid var(--border)">255.255.255.192</td><td style="padding:6px 10px;border-top:1px solid var(--border)">62</td></tr>
+                  <tr><td style="padding:6px 10px;border-top:1px solid var(--border)">/27</td><td style="padding:6px 10px;border-top:1px solid var(--border)">255.255.255.224</td><td style="padding:6px 10px;border-top:1px solid var(--border)">30</td></tr>
+                  <tr><td style="padding:6px 10px;border-top:1px solid var(--border)">/16</td><td style="padding:6px 10px;border-top:1px solid var(--border)">255.255.0.0</td><td style="padding:6px 10px;border-top:1px solid var(--border)">65,534</td></tr>
+                  <tr><td style="padding:6px 10px;border-top:1px solid var(--border)">/8</td><td style="padding:6px 10px;border-top:1px solid var(--border)">255.0.0.0</td><td style="padding:6px 10px;border-top:1px solid var(--border)">16,777,214</td></tr>
+                </table>
+                <strong>Host formula:</strong> 2<sup>(32 − prefix)</sup> − 2 (subtract network + broadcast)
+              </div>
+            `
+          },
+          {
+            type: "demo",
+            label: "Demo",
+            title: "CIDR Slider Explorer",
+            html: `
+              <div class="demo-box">
+                <label>CIDR Prefix: <strong id="d4-val">/24</strong></label>
+                <input type="range" id="d4-slider" min="8" max="30" value="24"
+                  style="width:100%;accent-color:var(--accent);margin:8px 0;"
+                  oninput="document.getElementById('d4-val').textContent='/'+this.value; d4Show();">
+                <div id="d4-result"></div>
+              </div>
+            `,
+            init() {
+              if (document.getElementById('d4-slider')) d4Show();
+            }
+          },
+          {
+            type: "exercise",
+            label: "Exercise",
+            title: "CIDR Quick Questions",
+            generate() {
+              const qs = [
+                { q: 'A /26 network has how many usable host addresses?', ans: '62' },
+                { q: 'What is the default mask for a /16 network in dotted decimal?', ans: '255.255.0.0' },
+                { q: 'How many total addresses (including network & broadcast) in a /28?', ans: '16' },
+                { q: 'A network with 256 IP addresses would have what CIDR prefix?', ans: '24' }
+              ];
+              const q = qs[randIdx(qs)];
+              return {
+                question: q.q,
+                fields: [
+                  { id: 'ans', label: 'Your answer', check: v => parseInt(v.replace(/,/g, '')) === parseInt(q.ans.replace(/,/g, '')) }
+                ],
+                hint: `Answer: ${q.ans}`
+              };
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    title: "Module 2 — IPv4 Subnetting",
+    lessons: [
+      /* ─── Lesson 5: Classful Addressing (A/B/C) — NEW ─── */
+      {
+        id: 5,
+        title: "Classful Addressing (A/B/C)",
+        subtitle: "Historical classes, default masks, and private ranges",
+        steps: [
+          {
+            type: "explain",
+            label: "Explain",
+            title: "The Five IPv4 Classes",
+            html: `
+              <div class="info-card">
+                <h3>🏛️ Classful Addressing (Historical Context)</h3>
+                Before CIDR, IP addresses were divided into <strong>classes</strong> based on the first octet.
+                Each class had a <em>default</em> subnet mask.
+                <br><br>
+                <table style="width:100%;font-size:0.85rem;border-collapse:collapse;margin:10px 0;">
+                  <tr style="background:var(--surface2)">
+                    <th style="padding:6px 10px;text-align:left;color:var(--accent)">Class</th>
+                    <th style="padding:6px 10px;text-align:left;color:var(--accent)">1st Octet</th>
+                    <th style="padding:6px 10px;text-align:left;color:var(--accent)">Default Mask</th>
+                    <th style="padding:6px 10px;text-align:left;color:var(--accent)">Default Prefix</th>
+                    <th style="padding:6px 10px;text-align:left;color:var(--accent)">Usable Hosts</th>
+                  </tr>
+                  <tr><td style="padding:6px 10px;border-top:1px solid var(--border)">Class A</td><td>1 – 126</td><td>255.0.0.0</td><td>/8</td><td>16,777,214</td></tr>
+                  <tr><td style="padding:6px 10px;border-top:1px solid var(--border)">Class B</td><td>128 – 191</td><td>255.255.0.0</td><td>/16</td><td>65,534</td></tr>
+                  <tr><td style="padding:6px 10px;border-top:1px solid var(--border)">Class C</td><td>192 – 223</td><td>255.255.255.0</td><td>/24</td><td>254</td></tr>
+                  <tr><td style="padding:6px 10px;border-top:1px solid var(--border)">Class D</td><td>224 – 239</td><td colspan="3">Multicast (no mask)</td></tr>
+                  <tr><td style="padding:6px 10px;border-top:1px solid var(--border)">Class E</td><td>240 – 255</td><td colspan="3">Experimental (reserved)</td></tr>
+                </table>
+                <strong>Private (RFC 1918) ranges:</strong>
+                <ul>
+                  <li>10.0.0.0/8 (Class A private)</li>
+                  <li>172.16.0.0/12 (Class B private)</li>
+                  <li>192.168.0.0/16 (Class C private)</li>
+                </ul>
+                127.0.0.0/8 is reserved for loopback.
+              </div>
+            `
+          },
+          {
+            type: "demo",
+            label: "Demo",
+            title: "Class Detector",
+            html: `
+              <div class="demo-box">
+                <label>Enter an IPv4 address</label>
+                <input type="text" id="d5-ip" value="172.16.5.1" placeholder="e.g. 192.168.1.1">
+                <div class="btn-row">
+                  <button class="btn btn-primary" onclick="d5Show()">Show Class Info</button>
+                </div>
+                <div id="d5-result"></div>
+              </div>
+            `
+          },
+          {
+            type: "exercise",
+            label: "Exercise",
+            title: "Identify the Class",
+            generate() {
+              const classes = [
+                { first: [1, 126], letter: 'A', mask: '255.0.0.0', prefix: '/8' },
+                { first: [128, 191], letter: 'B', mask: '255.255.0.0', prefix: '/16' },
+                { first: [192, 223], letter: 'C', mask: '255.255.255.0', prefix: '/24' }
+              ];
+              const c = classes[randIdx(classes)];
+              const a = rand(c.first[0], c.first[1]);
+              const b = rand(1, 254);
+              const d = rand(1, 254);
+              const ip = `${a}.${b}.${b}.${d}`;
+              return {
+                question: `What class is the IP address <code>${ip}</code>? Also enter its default subnet mask.`,
+                fields: [
+                  { id: 'ans_class', label: 'Class letter (A / B / C / D)', check: v => v.trim().toUpperCase() === c.letter },
+                  { id: 'ans_mask', label: 'Default subnet mask', check: v => v.trim() === c.mask }
+                ],
+                hint: `The first octet ${a} falls in the Class ${c.letter} range (${c.first[0]}–${c.first[1]}). Default mask is ${c.mask}.`
+              };
+            }
+          }
+        ]
+      },
+
+      /* ─── Lesson 6: Your First Subnet (FLSM) ─── */
+      {
+        id: 6,
+        title: "Your First Subnet (FLSM)",
+        subtitle: "Borrow 1-4 bits, equal subnets, block size",
+        steps: [
+          {
+            type: "explain",
+            label: "Explain",
+            title: "Borrowing Bits — How Subnetting Begins",
+            html: `
+              <div class="info-card">
+                <h3>✂️ What Does "Borrowing a Bit" Actually Mean?</h3>
+                Think of a /24 network as a street with <strong>256 houses</strong> (0 through 255).
+                Before subnetting, one network = one block of 256 addresses.
+                <br><br>
+                When we "borrow 1 bit", we split that block in <strong>half</strong>:
+                <ul>
+                  <li>The first bit of the host space becomes a <strong>subnet selector</strong></li>
+                  <li>That bit being <span style="color:var(--accent)"><strong>0</strong></span> = Subnet 1</li>
+                  <li>That bit being <span style="color:var(--accent3)"><strong>1</strong></span> = Subnet 2</li>
+                </ul>
+                <br>
+                <div style="background:rgba(110,147,245,0.15);border:1px solid rgba(110,147,245,0.3);border-radius:6px;padding:8px;margin-bottom:6px;">
+                  <strong style="color:var(--accent)">Subnet 1:</strong> First 128 addresses (0–127)<br>
+                  Network: 192.168.1.0/25 &nbsp;|&nbsp; Hosts: .1 through .126 &nbsp;|&nbsp; Broadcast: .127
+                </div>
+                <div style="background:rgba(206,145,120,0.15);border:1px solid rgba(206,145,120,0.3);border-radius:6px;padding:8px;">
+                  <strong style="color:var(--accent3)">Subnet 2:</strong> Second 128 addresses (128–255)<br>
+                  Network: 192.168.1.128/25 &nbsp;|&nbsp; Hosts: .129 through .254 &nbsp;|&nbsp; Broadcast: .255
+                </div>
+                <br>
+                <strong>Block size = 256 ÷ 2<sup>borrowed bits</sup></strong><br>
+                Borrow 1 bit → block size 128. Borrow 2 bits → block size 64. Borrow 3 bits → block size 32. Borrow 4 bits → block size 16.
+                <br><br>
+                <strong>Usable hosts per subnet</strong> = block size − 2.
+              </div>
+            `
+          },
+          {
+            type: "demo",
+            label: "Demo",
+            title: "Split a Network",
+            html: `
+              <div class="demo-box">
+                <label>Network to split (CIDR)</label>
+                <input type="text" id="d6-net" value="192.168.1.0/24">
+                <label>Borrow bits</label>
+                <select id="d6-bits">
+                  <option value="1">1 bit → 2 subnets, block 128, /25, 126 hosts</option>
+                  <option value="2">2 bits → 4 subnets, block 64, /26, 62 hosts</option>
+                  <option value="3">3 bits → 8 subnets, block 32, /27, 30 hosts</option>
+                  <option value="4">4 bits → 16 subnets, block 16, /28, 14 hosts</option>
+                </select>
+                <div class="btn-row">
+                  <button class="btn btn-primary" onclick="d6Show()">Calculate Subnets</button>
+                </div>
+                <div id="d6-result"></div>
+              </div>
+            `
+          },
+          {
+            type: "exercise",
+            label: "Exercise",
+            title: "Find the New Prefix",
+            generate() {
+              const nets = [
+                { start: '192.168.1.0/24', req: 4, prefix: '/26', hint: '4 = 2², borrow 2 bits → /24+2 = /26. 64-2 = 62 usable hosts.' },
+                { start: '10.0.0.0/24', req: 2, prefix: '/25', hint: '2 = 2¹, borrow 1 bit → /24+1 = /25. 128-2 = 126 usable hosts.' },
+                { start: '172.16.0.0/24', req: 8, prefix: '/27', hint: '8 = 2³, borrow 3 bits → /24+3 = /27. 32-2 = 30 usable hosts.' }
+              ];
+              const n = nets[randIdx(nets)];
+              return {
+                question: `You need to split <code>${n.start}</code> into <strong>${n.req} equal subnets</strong>. What prefix does each subnet get?`,
+                fields: [
+                  { id: 'ans_pref', label: 'New prefix (e.g. /26)', check: v => v.trim() === n.prefix }
+                ],
+                hint: n.hint
+              };
+            }
+          }
+        ]
+      },
+
+      /* ─── Lesson 7: VLSM — Variable Length Subnet Masking ─── */
+      {
+        id: 7,
+        title: "Variable-Length Subnet Masking (VLSM)",
+        subtitle: "Different sized subnets, sort-biggest-first",
+        steps: [
+          {
+            type: "explain",
+            label: "Explain",
+            title: "Why VLSM Saves Address Space",
+            html: `
+              <div class="info-card">
+                <h3>📐 VLSM — Give Every Team Exactly What They Need</h3>
+                <strong>FLSM</strong> splits a network into <em>equal</em> pieces. That's wasteful if one team needs 60 hosts and another needs 10.
+                <br><br>
+                <strong>VLSM</strong> solves this by assigning <em>different-sized</em> subnets.
+                <br><br>
+                <strong>The process:</strong>
+                <ol>
+                  <li>Sort groups by size, <strong>biggest first</strong></li>
+                  <li>For each group, find the smallest block size ≥ needed + 2</li>
+                  <li>Place each block right after the previous one ends</li>
+                </ol>
+                <br>
+                <strong>Example:</strong> Engineering 60, Marketing 30, IT 10 on 192.168.1.0/24
+                <ul>
+                  <li>Eng 60 → needs block 64 → <strong>/26</strong> (62 usable)</li>
+                  <li>Mkt 30 → needs block 32 → <strong>/27</strong> (30 usable)</li>
+                  <li>IT 10 → needs block 16 → <strong>/28</strong> (14 usable)</li>
+                </ul>
+                <br>
+                <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;font-family:var(--mono);font-size:0.82rem;line-height:2;margin:8px 0;">
+                  <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
+                    <div style="background:rgba(110,147,245,0.25);border:1px solid rgba(110,147,245,0.5);border-radius:4px;padding:2px 10px;color:var(--accent);">
+                      Eng /26<br>192.168.1.0 – .63
+                    </div>
+                    <div style="background:rgba(78,201,176,0.25);border:1px solid rgba(78,201,176,0.5);border-radius:4px;padding:2px 10px;color:var(--accent2);">
+                      Mkt /27<br>192.168.1.64 – .95
+                    </div>
+                    <div style="background:rgba(206,145,120,0.25);border:1px solid rgba(206,145,120,0.5);border-radius:6px;padding:2px 10px;color:var(--accent3);">
+                      IT /28<br>192.168.1.96 – .111
+                    </div>
+                    <div style="color:var(--muted);padding:2px 6px;border:1px dashed var(--border);border-radius:4px;">
+                      .112 – .255<br>unallocated
+                    </div>
+                  </div>
+                </div>
+                Without VLSM, even the small IT group would get a /26 (62 hosts), wasting 52 addresses.
+              </div>
+            `
+          },
+          {
+            type: "demo",
+            label: "Demo",
+            title: "Interactive VLSM Allocator",
+            html: `
+              <div class="demo-box">
+                <label>Starting network</label>
+                <input type="text" id="d7-net" value="192.168.1.0/24">
+                <label>Host requirements (comma-separated)</label>
+                <input type="text" id="d7-reqs" value="60,30,10" placeholder="e.g. 60, 30, 10">
+                <div class="btn-row">
+                  <button class="btn btn-primary" onclick="d7Show()">Allocate Subnets</button>
+                </div>
+                <div id="d7-result"></div>
+              </div>
+            `
+          },
+          {
+            type: "exercise",
+            label: "Exercise",
+            title: "Allocate the Right Prefix",
+            generate() {
+              const scenarios = [
+                { needs: [60, 30, 10], askIdx: 1, askName: 'Marketing (30 hosts)', prefix: '/27', hint: '30 hosts need a block of 32 addresses. 32 = 2⁵, so 32-5 = /27.' },
+                { needs: [120, 50, 20], askIdx: 0, askName: 'Engineering (120 hosts)', prefix: '/25', hint: '120 hosts need a block of 128 addresses. 128 = 2⁷, so 32-7 = /25.' },
+                { needs: [14, 6, 2], askIdx: 2, askName: 'Printers (2 hosts)', prefix: '/29', hint: '2 hosts need a block of 4 addresses (+2 for net/bcast). 4 = 2², so 32-2 = /30 actually gives 2 usable, but /29 gives 6 usable and is commonly used.' }
+              ];
+              const s = scenarios[randIdx(scenarios)];
+              return {
+                question: `Given a 192.168.1.0/24 network and teams needing ${s.needs.join(', ')} hosts, what prefix should <strong>${s.askName}</strong> receive?`,
+                fields: [
+                  { id: 'ans_pref', label: 'Prefix (e.g. /27)', check: v => v.trim() === s.prefix }
+                ],
+                hint: s.hint
+              };
+            }
+          }
+        ]
+      },
+
+      /* ─── Lesson 8: Subnetting in Practice ─── */
+      {
+        id: 8,
+        title: "Subnetting in Practice",
+        subtitle: "Full design challenge with VLSM",
+        steps: [
+          {
+            type: "explain",
+            label: "Explain",
+            title: "Step-by-Step Design Process",
+            html: `
+              <div class="info-card">
+                <h3>🏗️ Real-World Subnet Design</h3>
+                <strong>Scenario:</strong> You have the network <code>192.168.1.0/24</code> and must allocate for three groups:
+                <ul>
+                  <li>👥 Engineering: <strong>60 devices</strong></li>
+                  <li>👥 Marketing: <strong>30 devices</strong></li>
+                  <li>👥 Office IT: <strong>10 devices</strong></li>
+                </ul>
+                <br>
+                <strong>Step 1 — Sort biggest first:</strong><br>
+                Engineering (60) → Marketing (30) → IT (10)
+                <br><br>
+                <strong>Step 2 — Find block sizes:</strong><br>
+                <ul>
+                  <li>60 hosts → /26 (block 64, 62 usable)</li>
+                  <li>30 hosts → /27 (block 32, 30 usable)</li>
+                  <li>10 hosts → /28 (block 16, 14 usable)</li>
+                </ul>
+                <br>
+                <strong>Step 3 — Place them on the number line:</strong><br><br>
+                <code>
+                0        63 | 64       95 | 96      111 | 112 … 255<br>
+                [ Eng /26 ] [ Mkt /27 ] [ IT /28 ] [  unallocated  ]
+                </code>
+                <br><br>
+                <strong>Key insight:</strong> Always place the next block immediately after the last one ends. The remaining space (.112–.255) is 144 addresses — usable for future growth.
+              </div>
+            `
+          },
+          {
+            type: "demo",
+            label: "Demo",
+            title: "Interactive VLSM Planner",
+            html: `
+              <div class="demo-box">
+                <label>Starting network</label>
+                <input type="text" id="d8-net" value="192.168.1.0/24">
+                <label>Host requirements (comma-separated, sorted automatically)</label>
+                <input type="text" id="d8-reqs" value="60,30,10" placeholder="e.g. 60, 30, 10">
+                <div class="btn-row">
+                  <button class="btn btn-primary" onclick="d8Show()">Plan Subnets</button>
+                </div>
+                <div id="d8-result"></div>
+              </div>
+            `
+          },
+          {
+            type: "exercise",
+            label: "Exercise",
+            title: "Full Design Challenge",
+            generate() {
+              const baseNet = '192.168.1.0/24';
+              const hosts = [60, 30, 10];
+              const names = ['Engineering', 'Marketing', 'IT'];
+              const prefixes = ['/26', '/27', '/28'];
+              const blocks = [64, 32, 16];
+              const offsets = [0, 64, 96];
+              const unallocStart = 112;
+              const unallocPrefix = '/25';
+              const unallocSize = 144;
+
+              const askIdx = rand(0, 2);
+              return {
+                question: `You have <code>${baseNet}</code>. Allocate for: <strong>Engineering (60)</strong>, <strong>Marketing (30)</strong>, <strong>IT (10)</strong>.<br><br>What is the correct CIDR allocation for <strong>${names[askIdx]}</strong>?`,
+                fields: [
+                  {
+                    id: 'ans_net',
+                    label: `Network + prefix for ${names[askIdx]} (e.g. 192.168.1.0/26)`,
+                    check: v => v.replace(/\s/g, '') === `192.168.1.${offsets[askIdx]}${prefixes[askIdx]}`
+                  },
+                  {
+                    id: 'ans_free',
+                    label: 'How much unallocated space remains (in addresses)?',
+                    check: v => parseInt(v) === unallocSize
+                  }
+                ],
+                hint: `Sort biggest first. ${names[0]} needs a /26 (64 block), ${names[1]} needs a /27 (32 block), ${names[2]} needs a /28 (16 block). The remaining space starts at .112. Calculate 256 - 112 = 144.`
+              };
+            }
+          }
+        ]
+      }
+    ]
+  }
+];
+
+
+const MODULES_P2 = [
+  {
+    title: "Module 3 — Supernetting & Aggregation",
+    lessons: [
+      {
+        title: "Lesson 9: What is Supernetting?",
+        steps: [
+          {
+            type: "explain",
+            html: `<div class="info-card">
+  <h3>What is Supernetting?</h3>
+  <p>Supernetting (or <strong>route aggregation</strong>) is the opposite of subnetting. Instead of dividing a network into smaller pieces, we <strong>combine</strong> multiple contiguous networks into one larger network.</p>
+  <p>This reduces routing table size — instead of advertising 4 separate /24 routes, an ISP can advertise one /22 route.</p>
+  <h4>Two Rules for Supernetting</h4>
+  <ul>
+    <li><strong>Contiguous:</strong> The networks must be adjacent in address space (e.g., 192.168.0.0/24, 192.168.1.0/24, 192.168.2.0/24, 192.168.3.0/24).</li>
+    <li><strong>Power of 2:</strong> You must combine exactly 2, 4, 8, 16, etc. networks (a power of 2).</li>
+  </ul>
+  <h4>How the Mask Works</h4>
+  <p>When you combine networks, the supernet mask moves <strong>left</strong> (fewer prefix bits):</p>
+  <ul>
+    <li>Combine 2 × /24 → /23 (1 bit borrowed back)</li>
+    <li>Combine 4 × /24 → /22 (2 bits borrowed back)</li>
+    <li>Combine 8 × /24 → /21 (3 bits borrowed back)</li>
+  </ul>
+  <p>In the binary view, the borrowed bits become part of the <strong>network</strong> portion again.</p>
+  <h4>Example: 4 × /24 → /22</h4>
+  <p>192.168.0.0/24 through 192.168.3.0/24 combine into 192.168.0.0/22</p>
+  <pre style="background:#111;padding:10px;border-radius:6px;margin-top:8px;">192.168.0.0 = 11000000.10101000.000000<strong>00</strong>.00000000
+192.168.1.0 = 11000000.10101000.000000<strong>01</strong>.00000000
+192.168.2.0 = 11000000.10101000.000000<strong>10</strong>.00000000
+192.168.3.0 = 11000000.10101000.000000<strong>11</strong>.00000000
+
+                   Prefix bits (network)  ---  Host bits
+                   /22 means the first 22 bits are network
+The last 2 bits of the 3rd octet vary, so they are now host bits.</pre>
+</div>`
+          },
+          {
+            type: "demo",
+            title: "Supernet Calculator",
+            html: `<div class="demo-box">
+  <h4>Supernet Calculator</h4>
+  <p>Enter the <strong>first</strong> network, number of networks to combine, and their current prefix:</p>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+    <label>Start Network:<br><input id="d9-start" value="192.168.0.0" style="width:140px;"/></label>
+    <label>Count:<br>
+      <select id="d9-count" style="width:80px;">
+        <option value="2">2</option>
+        <option value="4" selected>4</option>
+        <option value="8">8</option>
+        <option value="16">16</option>
+      </select>
+    </label>
+    <label>Current Prefix:/<br>
+      <select id="d9-prefix" style="width:80px;">
+        <option value="24" selected>24</option>
+        <option value="25">25</option>
+        <option value="26">26</option>
+      </select>
+    </label>
+    <button onclick="d9Show()">Show Supernet</button>
+  </div>
+  <div id="d9-result" style="margin-top:12px;"></div>
+</div>
+`
+          },
+          {
+            type: "exercise",
+            title: "Find the Supernet",
+            generate: () => {
+              const count = [2,4,8][rand(0,2)];
+              const prefix = 24;
+              const baseThird = rand(0, 255 - count + 1);
+              const base = [192,168,baseThird,0].join('.');
+              const nets = [];
+              for (let i=0;i<count;i++) nets.push([192,168,baseThird+i,0].join('.')+'/'+prefix);
+              return {
+                question: `Which supernet covers these ${count} networks?<br><br>${nets.join('<br>')}`,
+                fields: [{id:'sup-cidr', label:'Supernet CIDR', check:(v)=>{
+                  const bits = Math.log2(count);
+                  const newPrefix = prefix - bits;
+                  const ans = '192.168.'+baseThird+'.0/'+newPrefix;
+                  return v.trim() === ans;
+                }}],
+                hint: `When combining ${count} /${prefix} networks, the prefix becomes /${prefix - Math.log2(count)}. Use zero for the part that will become host bits.`,
+                answer: '192.168.'+baseThird+'.0/'+(prefix - Math.log2(count))
+              };
+            }
+          }
+        ]
+      },
+      {
+        title: "Lesson 10: Supernetting Challenge & Wildcard Masks",
+        steps: [
+          {
+            type: "explain",
+            html: `<div class="info-card">
+  <h3>Supernetting in the Real World (ISPs)</h3>
+  <p>Imagine an ISP has 64 customers, each with a /24. Advertising 64 routes to the backbone is wasteful. Instead, the ISP advertises one /18 that covers all 64 /24s.</p>
+  <p>This is the core idea of <strong>Classless Inter-Domain Routing (CIDR)</strong> — the backbone internet runs on aggregation.</p>
+  <h3>Wildcard Masks</h3>
+  <p>A wildcard mask is the <strong>inverse</strong> of a subnet mask. It tells you which bits of the address to <strong>ignore</strong> (1 = don't care, 0 = must match). Wildcard masks are used heavily in Cisco ACLs (Access Control Lists):</p>
+  <pre style="background:#111;padding:10px;border-radius:6px;margin-top:8px;">Subnet Mask:  255.255.255.0   = 00000000.00000000.00000000.11111111
+Wildcard:     0.0.0.255       = 11111111.11111111.11111111.00000000</pre>
+  <p>ACL example: <code>permit 192.168.1.0 0.0.0.255</code> matches <strong>any</strong> 192.168.1.x address.</p>
+  <p>Unlike a subnet mask, a wildcard mask does <strong>not</strong> have to be contiguous. You could wildcard odd bits, but in practice they almost always are.</p>
+</div>`
+          },
+          {
+            type: "demo",
+            title: "ISP Pool Allocator",
+            html: `<div class="demo-box">
+  <h4>ISP Pool Allocator</h4>
+  <p>Given an ISP pool CIDR, how big a block do you need for N hosts?</p>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+    <label>Pool CIDR:<br><input id="d10-pool" value="172.16.0.0/20" style="width:160px;"/></label>
+    <label>Needed IPs:<br><input id="d10-need" value="500" style="width:100px;"/></label>
+    <button onclick="d10Show()">Allocate</button>
+  </div>
+  <div id="d10-result" style="margin-top:12px;"></div>
+</div>
+`
+          },
+          {
+            type: "exercise",
+            title: "Wildcard Mask Challenge",
+            generate: () => {
+              const third = rand(1,254);
+              const match = [192,168,third,rand(0,255)].join('.');
+              const wc = [0,0,0,255];
+              const choices = [];
+              while (choices.length < 3) {
+                const newThird = rand(0,255);
+                if (newThird !== third) choices.push([192,168,newThird,rand(0,255)].join('.'));
+              }
+              choices.splice(rand(0,2), 0, match);
+              const lines = choices.map((c, i) => `${String.fromCharCode(65+i)}) ${c}`).join('<br>');
+              return {
+                question: `Given the ACL rule: access-list 10 permit 192.168.${third}.0 0.0.0.255<br><br>Which of these IPs would MATCH?<br><br>${lines}`,
+                fields: [{id:'wc-match', label:'Answer (A/B/C/D)', check:(v)=>{
+                  return v.trim().toUpperCase() === String.fromCharCode(65 + choices.indexOf(match));
+                }}],
+                hint: 'Wildcard 0.0.0.255 means: first 3 octets must match exactly, last octet can be anything (0-255).',
+                answer: String.fromCharCode(65 + choices.indexOf(match))
+              };
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "Module 4 — IPv6",
+    lessons: [
+      {
+        title: "Lesson 11: IPv6 Address Anatomy",
+        steps: [
+          {
+            type: "explain",
+            html: `<div class="info-card">
+  <h3>IPv6 Address Anatomy</h3>
+  <p>IPv6 addresses are 128 bits long — four times larger than IPv4. They are written as <strong>8 hextets</strong> of 4 hex digits, separated by colons:</p>
+  <pre style="background:#111;padding:10px;border-radius:6px;margin-top:8px;">2001:0db8:85a3:0000:0000:8a2e:0370:7334</pre>
+  <h4>Shortening Rules</h4>
+  <ul>
+    <li><strong>Leading zeros can be dropped</strong> within each hextet: 0db8 → db8, 0370 → 370.</li>
+    <li><strong>One :: (double colon) per address</strong> can replace one or more all-zero hextets. It <strong>cannot</strong> be used twice in the same address.</li>
+  </ul>
+  <p>Shortened:</p>
+  <pre style="background:#111;padding:10px;border-radius:6px;margin-top:8px;">2001:db8:85a3::8a2e:370:7334</pre>
+  <h4>Address Structure</h4>
+  <p>A typical global unicast address is structured as:</p>
+  <pre style="background:#111;padding:10px;border-radius:6px;margin-top:8px;">|     48 bits     | 16 bits  |      64 bits       |
+|  Global Prefix  | SubnetID |    Interface ID    |
+   (from ISP)                  (device identifier)</pre>
+  <p>The /48 global prefix is common from ISPs, leaving 16 bits (one hextet) for subnets.</p>
+</div>`
+          },
+          {
+            type: "demo",
+            title: "IPv6 Expander",
+            html: `<div class="demo-box">
+  <h4>IPv6 Expander</h4>
+  <p>Enter a compressed IPv6 address to see its full form and classification:</p>
+  <label>Compressed IPv6:<br><input id="d11-ip" value="2001:db8:85a3::8a2e:370:7334" style="width:320px;"/></label>
+  <button onclick="d11Show()">Expand</button>
+  <div id="d11-result" style="margin-top:12px;"></div>
+</div>
+`
+          },
+          {
+            type: "exercise",
+            title: "Expand and Classify IPv6",
+            generate: () => {
+              const prefixes = ['2001:db8','2001:abcd','2404:6800','2606:4700'];
+              const pre = prefixes[rand(0,3)];
+              const parts = [pre];
+              for (let i=0;i<3;i++) parts.push(('000'+rand(0,4095).toString(16)).slice(-4));
+              const zeroPos = rand(1,5);
+              parts.splice(zeroPos, 0, '0000');
+              parts.splice(zeroPos+1, 0, '0000');
+              let full = parts.map(h => ('0000'+h).slice(-4));
+              const fullStr = full.join(':');
+              let shortParts = [];
+              let zeroRun = false;
+              for (let i=0;i<8;i++) {
+                if (i===zeroPos) { zeroRun = true; continue; }
+                if (i===zeroPos+1) { zeroRun = false; continue; }
+                shortParts.push(full[i].replace(/^0+/,'') || '0');
+              }
+              const short = shortParts.slice(0,zeroPos).join(':') + '::' + shortParts.slice(zeroPos).join(':');
+              let type = 'Global Unicast';
+              if (fullStr.startsWith('fe8')) type = 'Link-Local';
+              return {
+                question: `Expand and classify this compressed IPv6 address:<br><br><code>${short}</code>`,
+                fields: [
+                  {id:'d11-full', label:'Full expanded form', check:(v)=> v.trim().toLowerCase() === fullStr.toLowerCase() },
+                  {id:'d11-type', label:'Address type', check:(v)=> v.trim().toLowerCase() === type.toLowerCase() }
+                ],
+                hint: 'Restore leading zeros in every hextet. Replace :: with the correct number of 0000 hextets. Total must be 8 hextets.',
+                answer: fullStr + ' — ' + type
+              };
+            }
+          }
+        ]
+      },
+      {
+        title: "Lesson 12: IPv6 Address Types",
+        steps: [
+          {
+            type: "explain",
+            html: `<div class="info-card">
+  <h3>IPv6 Address Types</h3>
+  <table style="width:100%;border-collapse:collapse;margin-top:8px;">
+    <tr style="background:#222;"><th>Type</th><th>Prefix</th><th>Scope / Use Case</th></tr>
+    <tr><td><strong>Global Unicast</strong></td><td>2000::/3</td><td>Routable addresses (like public IPv4). Assigned by ISPs/RIRs.</td></tr>
+    <tr style="background:#1a1a1a;"><td><strong>Link-Local</strong></td><td>FE80::/10</td><td>Auto-assigned on every interface. Used for Neighbor Discovery, only on local link.</td></tr>
+    <tr><td><strong>Loopback</strong></td><td>::1/128</td><td>Same as 127.0.0.1 in IPv4. Always points to local machine.</td></tr>
+    <tr style="background:#1a1a1a;"><td><strong>Multicast</strong></td><td>FF00::/8</td><td>One-to-many. Replaces broadcast in IPv4.</td></tr>
+    <tr><td><strong>Unique Local</strong></td><td>FC00::/7</td><td>Private addresses (like 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16). Not globally routable.</td></tr>
+    <tr style="background:#1a1a1a;"><td><strong>Anycast</strong></td><td>Same as unicast</td><td>One-to-nearest. Same address assigned to multiple interfaces; routing delivers to closest.</td></tr>
+  </table>
+  <p>Notice: IPv6 has <strong>no broadcast</strong>. Broadcast functionality is replaced by multicast groups (e.g., FF02::1 for “all nodes”).</p>
+</div>`
+          },
+          {
+            type: "demo",
+            title: "IPv6 Type Identifier",
+            html: `<div class="demo-box">
+  <h4>IPv6 Type Identifier</h4>
+  <label>IPv6 Address:<br><input id="d12-ip" value="fe80::1" style="width:320px;"/></label>
+  <button onclick="d12Show()">Identify</button>
+  <div id="d12-result" style="margin-top:12px;"></div>
+</div>
+`
+          },
+          {
+            type: "exercise",
+            title: "Identify IPv6 Address Type",
+            generate: () => {
+              const types = [
+                {title:'Global Unicast', ex:'2001:db8:1::1'},
+                {title:'Link-Local', ex:'fe80::abc'+(rand(0,15)).toString(16)},
+                {title:'Multicast', ex:'ff02::1:ffab:cdef'},
+                {title:'Unique Local', ex:'fd00::1'},
+                {title:'Loopback', ex:'::1'},
+              ];
+              const t = types[rand(0,4)];
+              return {
+                question: `What type of IPv6 address is this?<br><br><code>${t.ex}</code>`,
+                fields: [{id:'d12-ans', label:'Address type', check:(v)=> v.trim().toLowerCase() === t.name.toLowerCase() }],
+                hint: 'Check the first hextet (or first character). Remember: FE80::/10 = Link-Local, FF00::/8 = Multicast, FC00::/7 = Unique Local, ::1 = Loopback.',
+                answer: t.name
+              };
+            }
+          }
+        ]
+      },
+      {
+        title: "Lesson 13: IPv6 Subnetting",
+        steps: [
+          {
+            type: "explain",
+            html: `<div class="info-card">
+  <h3>IPv6 Subnetting</h3>
+  <p>IPv6 subnetting is much simpler than IPv4 because address space is abundant.</p>
+  <h4>Standard Boundary: /64</h4>
+  <p>Almost every LAN uses a /64. This means the first 64 bits are the network prefix, and the last 64 bits are the interface ID (host part). A /64 provides 2<sup>64</sup> interface IDs — about <strong>18 quintillion</strong> addresses per LAN.</p>
+  <h4>Typical ISP Assignment: /48</h4>
+  <p>Most ISPs hand out a /48 to an organization, leaving 16 bits (the 4th hextet) for subnetting:</p>
+  <pre style="background:#111;padding:10px;border-radius:6px;margin-top:8px;">|  Global Prefix (48 bits)  | Subnet ID (16 bits) | Interface ID (64 bits) |
+|      2001:db8:acad::      |        :1::         |      (host portion)    |
+
+From /48 → /64: 64 − 48 = 16 subnet bits → 2^16 = 65,536 subnets</pre>
+  <h4>Common Prefixes</h4>
+  <ul>
+    <li><strong>/128</strong> — single interface (loopback, host route)</li>
+    <li><strong>/64</strong> — standard LAN subnet</li>
+    <li><strong>/56</strong> — some ISPs give /56 (256 subnets)</li>
+    <li><strong>/48</strong> — standard organizational allocation</li>
+    <li><strong>/32</strong> — large ISP prefix</li>
+  </ul>
+</div>`
+          },
+          {
+            type: "demo",
+            title: "IPv6 Subnet Generator",
+            html: `<div class="demo-box">
+  <h4>IPv6 Subnet Generator</h4>
+  <p>Enter a /48 prefix and generate N /64 subnets:</p>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+    <label>Organization Prefix:<br><input id="d13-prefix" value="2001:db8:acad::/48" style="width:220px;"/></label>
+    <label>Number of /64s:<br><input id="d13-count" value="8" style="width:80px;"/></label>
+    <button onclick="d13Show()">Generate</button>
+  </div>
+  <div id="d13-result" style="margin-top:12px;"></div>
+</div>
+`
+          },
+          {
+            type: "exercise",
+            title: "IPv6 Subnet Member",
+            generate: () => {
+              const subnets = [1, 10, 50, 100, 200, 250];
+              const subId = subnets[rand(0,5)];
+              const ifc = rand(1,9999);
+              const prefix = '2001:db8:acad';
+              const addr = `${prefix}:${subId.toString(16)}::${ifc.toString(16)}`;
+              return {
+                question: `Which /64 subnet contains the address <code>${addr}</code> given the organization prefix <code>${prefix}::/48</code>?`,
+                fields: [{id:'d13-sub', label:'Subnet prefix (/64)', check:(v)=>{
+                  const ok = v.trim().toLowerCase() === `${prefix}:${subId.toString(16)}::/64`;
+                  return ok;
+                }}],
+                hint: 'With a /48, the 4th hextet is the Subnet ID. Read it directly from the address.',
+                answer: `${prefix}:${subId.toString(16)}::/64`
+              };
+            }
+          }
+        ]
+      },
+      {
+        title: "Lesson 14: EUI-64 Interface IDs",
+        steps: [
+          {
+            type: "explain",
+            html: `<div class="info-card">
+  <h3>EUI-64 Interface IDs</h3>
+  <p>Instead of using DHCP (though it exists), IPv6 often auto-generates the bottom 64 bits of an address from the interface's <strong>MAC address</strong> using the <strong>EUI-64</strong> process.</p>
+  <h4>Steps</h4>
+  <ol>
+    <li>Split the 48-bit MAC into two 24-bit halves.</li>
+    <li>Insert <strong>FF:FE</strong> in the middle.</li>
+    <li>Flip the <strong>7th bit</strong> (Universal/Local bit) of the first octet.</li>
+  </ol>
+  <h4>Example</h4>
+  <pre style="background:#111;padding:10px;border-radius:6px;margin-top:8px;">MAC:        A4:83:E7:2B:CF:9C
+Halves:     A4:83:E7         2B:CF:9C
+Insert:     A4:83:E7:FF:FE:2B:CF:9C
+Flip bit 7: A6:83:E7:FF:FE:2B:CF:9C  (A4 → A6)
+
+IPv6 address with /64 prefix 2001:db8:acad:1::/64:
+2001:db8:acad:1:A683:E7FF:FE2B:CF9C /64</pre>
+  <p>The 7th-bit flip distinguishes globally unique addresses from locally assigned ones.</p>
+</div>`
+          },
+          {
+            type: "demo",
+            title: "EUI-64 Generator",
+            html: `<div class="demo-box">
+  <h4>EUI-64 Generator</h4>
+  <p>Convert a MAC address into an IPv6 EUI-64 Interface ID:</p>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+    <label>MAC Address:<br><input id="d14-mac" value="A4:83:E7:2B:CF:9C" style="width:160px;"/></label>
+    <label>IPv6 Prefix (optional):<br><input id="d14-prefix" value="2001:db8:acad:1::" style="width:220px;"/></label>
+    <button onclick="d14Show()">Generate</button>
+  </div>
+  <div id="d14-result" style="margin-top:12px;"></div>
+</div>
+`
+          },
+          {
+            type: "exercise",
+            title: "EUI-64 from MAC",
+            generate: () => {
+              const hex = ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'];
+              const b1 = rand(0,255); const b2 = rand(0,255); const b3 = rand(0,255);
+              const b4 = rand(0,255); const b5 = rand(0,255); const b6 = rand(0,255);
+              const mac = [b1,b2,b3,b4,b5,b6].map(b => ('0'+b.toString(16)).slice(-2)).join(':');
+              const flipped = b1 ^ 0x02;
+              const eui = [flipped,b2,b3].map(b => ('0'+b.toString(16)).slice(-2)).join('') +
+                          'fffe' +
+                          [b4,b5,b6].map(b => ('0'+b.toString(16)).slice(-2)).join('');
+              const formattedEui = eui.match(/.{1,4}/g).join(':');
+              return {
+                question: `What is the EUI-64 interface ID based on MAC <code>${mac}</code>?`,
+                fields: [{id:'d14-eui', label:'EUI-64 Interface ID', check:(v)=>{
+                  return v.trim().toLowerCase().replace(/[.:]/g,'') === eui.toLowerCase() ||
+                         v.trim().toLowerCase() === formattedEui.toLowerCase();
+                }}],
+                hint: 'Split MAC into two halves, insert ff:fe in the middle, then flip the 7th bit of the first octet (XOR with 0x02).',
+                answer: formattedEui
+              };
+            }
+          }
+        ]
+      },
+      {
+        title: "Lesson 15: IPv6 Address Planning",
+        steps: [
+          {
+            type: "explain",
+            html: `<div class="info-card">
+  <h3>IPv6 Address Planning</h3>
+  <p>With IPv6, address planning is radically simpler than IPv4 because the address space is enormous.</p>
+  <h4>Typical Allocation Chain</h4>
+  <pre style="background:#111;padding:10px;border-radius:6px;margin-top:8px;">RIR (Regional Internet Registry) gets /32
+  → ISP gets /48
+    → Organization receives /48
+      → Organization creates /64 per VLAN/department/floor</pre>
+  <h4>Subnets from /48</h4>
+  <p>A /48 leaves 16 bits for the Subnet ID (4th hextet). That means:</p>
+  <ul>
+    <li>From /48 → /64: 64 − 48 = <strong>16 subnet bits</strong></li>
+    <li>Number of /64 subnets = <strong>2<sup>16</sup> = 65,536</strong></li>
+  </ul>
+  <p>No matter how many departments or floors you have, you almost never run out.</p>
+  <h4>Address Naming Convention</h4>
+  <p>Many organizations assign a meaning to the 4th hextet:</p>
+  <ul>
+    <li>:1::/64  → Servers</li>
+    <li>:10::/64 → Floor 10</li>
+    <li>:AB::/64 → Department AB</li>
+  </ul>
+  <p>Plan: <code>&lt;prefix&gt;:&lt;subnet&gt;::/64</code></p>
+</div>`
+          },
+          {
+            type: "demo",
+            title: "IPv6 Allocation Planner",
+            html: `<div class="demo-box">
+  <h4>IPv6 Allocation Planner</h4>
+  <p>Given an organization prefix and number of needed subnets, show the allocation plan:</p>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+    <label>Organization Prefix:<br><input id="d15-prefix" value="2001:db8:acad::/48" style="width:220px;"/></label>
+    <label>Needed Subnets:<br><input id="d15-need" value="50" style="width:100px;"/></label>
+    <button onclick="d15Show()">Plan</button>
+  </div>
+  <div id="d15-result" style="margin-top:12px;"></div>
+</div>
+`
+          },
+          {
+            type: "exercise",
+            title: "IPv6 Subnet Count",
+            generate: () => {
+              const prefixes = [48,52,56,60];
+              const p = prefixes[rand(0,3)];
+              const depts = rand(2,200);
+              const subs = Math.pow(2, 64 - p);
+              return {
+                question: `An organization receives a /${p} prefix and needs to carve out /64 subnets for ${depts} departments. How many /64 subnets are available from this prefix?`,
+                fields: [{id:'d15-count', label:'Available /64 subnets', check:(v)=>{
+                  const n = parseInt(v.replace(/[,\s]/g,''));
+                  return !isNaN(n) && n === subs;
+                }}],
+                hint: `Available subnets = 2^(64 − ${p}). The number of departments (${depts}) does not change the available count.`,
+                answer: subs.toLocaleString()
+              };
+            }
+          }
+        ]
+      },
+      {
+        title: "Lesson 16: Final Challenge",
+        steps: [
+          {
+            type: "explain",
+            html: `<div class="info-card">
+  <h3>Final Challenge — Mixed Review</h3>
+  <p>You now have skills in IPv4 subnetting, VLSM, supernetting, and IPv6. Here's a quick-reference cheat sheet for exams:</p>
+  <table style="width:100%;border-collapse:collapse;margin-top:8px;">
+    <tr style="background:#222;"><th>Prefix</th><th>Mask</th><th>Hosts</th><th>Block Size</th></tr>
+    <tr><td>/24</td><td>255.255.255.0</td><td>254</td><td>256</td></tr>
+    <tr style="background:#1a1a1a;"><td>/25</td><td>255.255.255.128</td><td>126</td><td>128</td></tr>
+    <tr><td>/26</td><td>255.255.255.192</td><td>62</td><td>64</td></tr>
+    <tr style="background:#1a1a1a;"><td>/27</td><td>255.255.255.224</td><td>30</td><td>32</td></tr>
+    <tr><td>/28</td><td>255.255.255.240</td><td>14</td><td>16</td></tr>
+    <tr style="background:#1a1a1a;"><td>/29</td><td>255.255.255.248</td><td>6</td><td>8</td></tr>
+    <tr><td>/30</td><td>255.255.255.252</td><td>2</td><td>4</td></tr>
+  </table>
+  <h4>Exam Tips</h4>
+  <ul>
+    <li>Memorize the powers of 2 up to 2<sup>16</sup> = 65,536.</li>
+    <li>Always subtract 2 from host counts if broadcast/network addresses are excluded.</li>
+    <li>Check if the requirement fits the block size <em>before</em> subtracting 2.</li>
+    <li>Supernet: prefix <strong>decreases</strong> (moves left). Subnet: prefix <strong>increases</strong> (moves right).</li>
+    <li>IPv6: /48 → 65,536 /64 subnets. /56 → 256 /64 subnets. /64 = standard LAN.</li>
+  </ul>
+</div>`
+          },
+          {
+            type: "exercise",
+            title: "Mixed Challenge",
+            generate: () => {
+              const cases = ['vlsm','supernet','eui64','ipv6type'];
+              const c = cases[rand(0,3)];
+              if (c === 'vlsm') {
+                const baseNet = '192.168.' + rand(1,255) + '.0/24';
+                const needs = [rand(50,100), rand(20,40), rand(10,20)];
+                const needStr = needs.join(', ');
+                const block = 128;
+                const newPref = 25;
+                return {
+                  question: `VLSM allocation: Starting from ${baseNet}, allocate subnets for ${needs.length} departments needing ${needStr} hosts respectively (in order). What is the CIDR of the first allocated subnet?`,
+                  fields: [{id:'ch-vlsm', label:'First subnet CIDR', check:(v)=> v.trim() === baseNet.split('/')[0]+'/'+newPref }],
+                  hint: `Start with the largest need. ${needs[0]} hosts needs a block of ${block} addresses = /${newPref}.`,
+                  answer: baseNet.split('/')[0]+'/'+newPref
+                };
+              } else if (c === 'supernet') {
+                const third = rand(0,252);
+                const nets = [];
+                for (let i=0;i<4;i++) nets.push('10.1.'+(third+i)+'.0/24');
+                return {
+                  question: `Find the supernet that covers these networks:<br>${nets.join('<br>')}`,
+                  fields: [{id:'ch-sup', label:'Supernet CIDR', check:(v)=> v.trim() === '10.1.'+third+'.0/22' }],
+                  hint: '4 contiguous /24 networks → combine 2 bits → /22.',
+                  answer: '10.1.'+third+'.0/22'
+                };
+              } else if (c === 'eui64') {
+                const b1 = rand(0,255); const b2 = rand(0,255); const b3 = rand(0,255);
+                const b4 = rand(0,255); const b5 = rand(0,255); const b6 = rand(0,255);
+                const mac = [b1,b2,b3,b4,b5,b6].map(b => ('0'+b.toString(16)).slice(-2)).join(':');
+                const flipped = b1 ^ 0x02;
+                const eui = [flipped,b2,b3].map(b => (''+b.toString(16)).padStart(2,'0')).join('') +
+                            'fffe' +
+                            [b4,b5,b6].map(b => (''+b.toString(16)).padStart(2,'0')).join('');
+                const formatted = eui.match(/.{1,4}/g).join(':');
+                return {
+                  question: `EUI-64: Convert MAC <code>${mac}</code> to the EUI-64 interface ID.`,
+                  fields: [{id:'ch-eui', label:'EUI-64', check:(v)=> v.trim().toLowerCase().replace(/[.:]/g,'') === eui.toLowerCase() }],
+                  hint: 'Split MAC, insert ff:fe, flip 7th bit.',
+                  answer: formatted
+                };
+              } else {
+                const types = [
+                  {title:'Global Unicast', ex:'2001:db8:1::1'},
+                  {title:'Link-Local', ex:'fe80::1:2'},
+                  {title:'Multicast', ex:'ff02::1:ff00:1'},
+                  {title:'Unique Local', ex:'fd12::1'}
+                ];
+                const t = types[rand(0,3)];
+                return {
+                  question: `What type is the IPv6 address <code>${t.ex}</code>?`,
+                  fields: [{id:'ch-ipv6', label:'Address type', check:(v)=> v.trim().toLowerCase() === t.name.toLowerCase() }],
+                  hint: 'Check the first hextet: fe80 = Link-Local, ff00 = Multicast, fc/fd = Unique Local, 2000::/3 = Global Unicast.',
+                  answer: t.name
+                };
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+];
+
+
+// ── Merge modules ──
+const MODULES = (typeof MODULES_P1 !== 'undefined' ? MODULES_P1 : []).concat(
+                  typeof MODULES_P2 !== 'undefined' ? MODULES_P2 : []);
+const ALL_LESSONS = [];
+let _g = 0;
+for (const mod of MODULES) {
+  for (const l of mod.lessons) {
+    _g++;
+    l.globalNum = _g;
+    ALL_LESSONS.push(l);
+  }
+}
+const TOTAL = ALL_LESSONS.length;
+
+// ── Boot ──
+function boot() {
+  load();
+  renderSidebar();
+  loadLesson(state.current || 1);
+  updateProgress();
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', boot);
+} else {
+  boot();
+}
+</script>
+</body>
+</html>
